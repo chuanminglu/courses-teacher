@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI重构DevOps课程 - 竞赛记分牌</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .team-count {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .team-count label {
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        .team-count select {
+            padding: 8px 12px;
+            border: 2px solid #ced4da;
+            border-radius: 5px;
+            background: white;
+            font-size: 14px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #1e7e34;
+            transform: translateY(-2px);
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-warning:hover {
+            background: #e0a800;
+            transform: translateY(-2px);
+        }
+        
+        .scoreboard {
+            padding: 30px;
+        }
+        
+        .score-table {
+            width: 100%;
+            border-collapse: collapse;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        .score-table th,
+        .score-table td {
+            padding: 15px 12px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+        }
+        
+        .score-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .team-name {
+            background: #f8f9fa !important;
+            font-weight: bold;
+            color: #495057;
+            min-width: 120px;
+        }
+        
+        .score-cell {
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .score-cell:hover {
+            background: #e3f2fd !important;
+            transform: scale(1.05);
+        }
+        
+        .score-input {
+            border: none;
+            background: transparent;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            width: 100%;
+            padding: 5px;
+        }
+        
+        .score-input:focus {
+            outline: 2px solid #007bff;
+            background: #fff;
+            border-radius: 3px;
+        }
+        
+        .total-column {
+            background: linear-gradient(135deg, #28a745, #20c997) !important;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .rank-column {
+            background: linear-gradient(135deg, #ffc107, #fd7e14) !important;
+            color: #212529;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .category-header {
+            background: rgba(102, 126, 234, 0.1) !important;
+            color: #495057 !important;
+            font-size: 12px;
+            font-weight: normal;
+            border-top: 2px solid #667eea;
+        }
+        
+        .ranking-display {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .ranking-title {
+            color: #495057;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .ranking-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .ranking-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .rank-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .rank-number.first {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+        }
+        
+        .rank-number.second {
+            background: linear-gradient(135deg, #c0c0c0, #808080);
+        }
+        
+        .rank-number.third {
+            background: linear-gradient(135deg, #cd7f32, #8b4513);
+        }
+        
+        .team-info {
+            flex: 1;
+        }
+        
+        .team-info .name {
+            font-weight: bold;
+            font-size: 16px;
+            color: #495057;
+        }
+        
+        .team-info .score {
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        .score-breakdown {
+            margin-top: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .breakdown-title {
+            color: #495057;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .score-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .score-info-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .score-info-item h4 {
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .score-range {
+            color: #6c757d;
+            font-size: 12px;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .action-buttons {
+                justify-content: center;
+            }
+            
+            .score-table {
+                font-size: 12px;
+            }
+            
+            .score-table th,
+            .score-table td {
+                padding: 8px 6px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏆 AI重构DevOps课程竞赛记分牌</h1>
+            <p>实时跟踪各小组在6大评分项目中的表现</p>
+        </div>
+        
+        <div class="controls">
+            <div class="team-count">
+                <label for="teamCount">参赛小组数量：</label>
+                <select id="teamCount" onchange="updateTeamCount()">
+                    <option value="4">4组</option>
+                    <option value="5">5组</option>
+                    <option value="6" selected>6组</option>
+                    <option value="7">7组</option>
+                    <option value="8">8组</option>
+                </select>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="resetAllScores()">🔄 重置所有分数</button>
+                <button class="btn btn-success" onclick="saveScores()">💾 保存分数</button>
+                <button class="btn btn-warning" onclick="loadScores()">📂 加载分数</button>
+            </div>
+        </div>
+        
+        <div class="scoreboard">
+            <table class="score-table" id="scoreTable">
+                <thead>
+                    <tr>
+                        <th class="team-name">小组</th>
+                        <th>开场展示<br><span class="category-header">5分</span></th>
+                        <th colspan="6">演练成果分 (60分)</th>
+                        <th colspan="3">阶段总结分 (15分)</th>
+                        <th>出勤准时<br><span class="category-header">24分</span></th>
+                        <th>课堂表现<br><span class="category-header">40分</span></th>
+                        <th>综合展示<br><span class="category-header">15分</span></th>
+                        <th class="total-column">总分<br><span class="category-header">159分</span></th>
+                        <th class="rank-column">排名</th>
+                    </tr>
+                    <tr class="category-header">
+                        <th></th>
+                        <th>团队印象</th>
+                        <th>工具箱<br>10分</th>
+                        <th>项目计划<br>10分</th>
+                        <th>需求分析<br>10分</th>
+                        <th>架构设计<br>10分</th>
+                        <th>AI-TDD<br>10分</th>
+                        <th>CI/CD<br>10分</th>
+                        <th>第1天下午<br>5分</th>
+                        <th>第2天上午<br>5分</th>
+                        <th>第2天下午<br>5分</th>
+                        <th>准时出勤</th>
+                        <th>积极参与</th>
+                        <th>最终汇报</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="scoreTableBody">
+                    <!-- 动态生成的行 -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="score-breakdown">
+            <h3 class="breakdown-title">📊 评分规则说明</h3>
+            <div class="score-info">
+                <div class="score-info-item">
+                    <h4>开场展示分</h4>
+                    <div>保底2分 - 最高5分</div>
+                    <div class="score-range">团队介绍 + AI工具箱方案</div>
+                </div>
+                <div class="score-info-item">
+                    <h4>演练成果分</h4>
+                    <div>每项保底3分 - 最高10分</div>
+                    <div class="score-range">6个演练项目，共60分</div>
+                </div>
+                <div class="score-info-item">
+                    <h4>阶段总结分</h4>
+                    <div>每次保底2分 - 最高5分</div>
+                    <div class="score-range">3次课前总结，共15分</div>
+                </div>
+                <div class="score-info-item">
+                    <h4>出勤准时分</h4>
+                    <div>保底12分 - 最高24分</div>
+                    <div class="score-range">8次课×3分，基础保障</div>
+                </div>
+                <div class="score-info-item">
+                    <h4>课堂表现分</h4>
+                    <div>保底15分 - 最高40分</div>
+                    <div class="score-range">积极参与 + 创新分享</div>
+                </div>
+                <div class="score-info-item">
+                    <h4>综合展示分</h4>
+                    <div>保底8分 - 最高15分</div>
+                    <div class="score-range">最终成果汇报</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="ranking-display">
+            <h3 class="ranking-title">🥇 实时排行榜</h3>
+            <div class="ranking-list" id="rankingList">
+                <!-- 动态生成的排行 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let teamCount = 6;
+        let scores = {};
+        
+        // 初始化记分牌
+        function initializeScoreboard() {
+            const tbody = document.getElementById('scoreTableBody');
+            tbody.innerHTML = '';
+            scores = {};
+            
+            for (let i = 1; i <= teamCount; i++) {
+                scores[`team${i}`] = {
+                    name: `第${i}组`,
+                    opening: 2, // 开场展示保底分
+                    practice1: 3, // 工具箱演练保底分
+                    practice2: 3, // 项目计划演练保底分
+                    practice3: 3, // 需求分析演练保底分
+                    practice4: 3, // 架构设计演练保底分
+                    practice5: 3, // AI-TDD演练保底分
+                    practice6: 3, // CI/CD演练保底分
+                    summary1: 2, // 第1天下午总结保底分
+                    summary2: 2, // 第2天上午总结保底分
+                    summary3: 2, // 第2天下午总结保底分
+                    attendance: 12, // 出勤准时保底分
+                    participation: 15, // 课堂表现保底分
+                    final: 8, // 综合展示保底分
+                    total: 0,
+                    rank: 0
+                };
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="team-name">
+                        <input type="text" value="${scores[`team${i}`].name}" 
+                               onchange="updateTeamName('team${i}', this.value)" 
+                               style="border:none; background:transparent; font-weight:bold; text-align:center; width:100%;">
+                    </td>
+                    <td class="score-cell" style="background: #e8f5e8;">
+                        <input type="number" class="score-input" min="2" max="5" 
+                               value="${scores[`team${i}`].opening}" 
+                               onchange="updateScore('team${i}', 'opening', this.value)">
+                    </td>
+                    <td class="score-cell" style="background: #fff3e0;">
+                        <input type="number" class="score-input" min="3" max="10" 
+                               value="${scores[`team${i}`].practice1}" 
+                               onchange="updateScore('team${i}', 'practice1', this.value)">
+                    </td>
+                    <td class="score-cell" style="background: #fff3e0;">
+                        <input type="number" class="score-input" min="3" max="10" 
+                               value="${scores[`team${i}`].practice2}" 
+                               onchange="updateScore('team${i}', 'practice2', this.value)">
+                    </td>
+                    <td class="score-cell" style="background: #fff3e0;">
+                        <input type="number" class="score-input" min="3" max="10" 
+                               value="${scores[`team${i}`].practice3}" 
+                               onchange="updateScore('team${i}', 'practice3', this.value)">
+                    </td>
+                    <td class="score-cell" style="background: #fff3e0;">
+                        <input type="number" class="score-input" min="3" max="10" 
+                               value="${scores[`team${i}`].practice4}" 
+                               onchange="updateScore('team${i}', 'practice4', this.value)">
+                    </td>
+                    <td class="score-cell" style="background: #fff3e0;">
+                        <input type="number" class="score-input" min="3" max="10" 
+                               value="${scores[`team${i}`].practice5}" 
+                               onchange="updateScore('team${i}', 'practice5', this.value)">
+                    </td>
+                    <td class="score-cell" style="background: #fff3e0;">
+                        <input type="number" class="score-input" min="3" max="10" 
+                               value="${scores[`team${i}`].practice6}" 
+                               onchange="updateScore('team${i}', 'practice6', this.value)">
+                    </td>
+                    <td class="score-cell" style="background: #f0f8ff;">
+                        <input type="number" class="score-input" min="2" max="5" 
+                               value="${scores[`team${i}`].summary1}" 
+                               onchange="updateScore('team${i}', 'summary1', this.value)">
+                    </td>
+                    <td class="score-cell" style="background: #f0f8ff;">
+                        <input type="number" class="score-input" min="2" max="5" 
+                               value="${scores[`team${i}`].summary2}" 
+                               onchange="updateScore('team${i}', 'summary2', this.value)">
+                    </td>
+                    <td class="score-cell" style="background: #f0f8ff;">
+                        <input type="number" class="score-input" min="2" max="5" 
+                               value="${scores[`team${i}`].summary3}" 
+                               onchange="updateScore('team${i}', 'summary3', this.value)">
+                    </td>
+                    <td class="score-cell" style="background: #fafafa;">
+                        <input type="number" class="score-input" min="0" max="24" step="3" 
+                               value="${scores[`team${i}`].attendance}" 
+                               onchange="updateScore('team${i}', 'attendance', this.value)">
+                    </td>
+                    <td class="score-cell" style="background: #f5f5f5;">
+                        <input type="number" class="score-input" min="15" max="40" 
+                               value="${scores[`team${i}`].participation}" 
+                               onchange="updateScore('team${i}', 'participation', this.value)">
+                    </td>
+                    <td class="score-cell" style="background: #ffe0e0;">
+                        <input type="number" class="score-input" min="8" max="15" 
+                               value="${scores[`team${i}`].final}" 
+                               onchange="updateScore('team${i}', 'final', this.value)">
+                    </td>
+                    <td class="total-column" id="total_team${i}">0</td>
+                    <td class="rank-column" id="rank_team${i}">-</td>
+                `;
+                tbody.appendChild(row);
+            }
+            
+            updateAllTotals();
+        }
+        
+        // 更新小组数量
+        function updateTeamCount() {
+            teamCount = parseInt(document.getElementById('teamCount').value);
+            initializeScoreboard();
+        }
+        
+        // 更新小组名称
+        function updateTeamName(teamId, newName) {
+            scores[teamId].name = newName;
+            updateRanking();
+        }
+        
+        // 更新分数
+        function updateScore(teamId, category, value) {
+            scores[teamId][category] = parseInt(value) || 0;
+            updateAllTotals();
+        }
+        
+        // 更新所有总分
+        function updateAllTotals() {
+            for (let teamId in scores) {
+                const team = scores[teamId];
+                team.total = team.opening + team.practice1 + team.practice2 + team.practice3 + 
+                           team.practice4 + team.practice5 + team.practice6 + team.summary1 + 
+                           team.summary2 + team.summary3 + team.attendance + team.participation + team.final;
+                
+                document.getElementById(`total_${teamId}`).textContent = team.total;
+            }
+            
+            updateRanking();
+        }
+        
+        // 更新排名
+        function updateRanking() {
+            const teams = Object.entries(scores).sort((a, b) => b[1].total - a[1].total);
+            
+            teams.forEach(([teamId, team], index) => {
+                team.rank = index + 1;
+                const rankElement = document.getElementById(`rank_${teamId}`);
+                if (rankElement) {
+                    rankElement.textContent = team.rank;
+                }
+            });
+            
+            // 更新排行榜显示
+            const rankingList = document.getElementById('rankingList');
+            rankingList.innerHTML = '';
+            
+            teams.forEach(([teamId, team], index) => {
+                const rankItem = document.createElement('div');
+                rankItem.className = 'ranking-item';
+                
+                let rankClass = '';
+                if (index === 0) rankClass = 'first';
+                else if (index === 1) rankClass = 'second';
+                else if (index === 2) rankClass = 'third';
+                
+                rankItem.innerHTML = `
+                    <div class="rank-number ${rankClass}">${team.rank}</div>
+                    <div class="team-info">
+                        <div class="name">${team.name}</div>
+                        <div class="score">总分: ${team.total} / 159</div>
+                    </div>
+                `;
+                
+                rankingList.appendChild(rankItem);
+            });
+        }
+        
+        // 重置所有分数
+        function resetAllScores() {
+            if (confirm('确定要重置所有分数吗？此操作不可撤销。')) {
+                initializeScoreboard();
+            }
+        }
+        
+        // 保存分数到本地存储
+        function saveScores() {
+            const data = {
+                teamCount: teamCount,
+                scores: scores,
+                timestamp: new Date().toISOString()
+            };
+            localStorage.setItem('devops_competition_scores', JSON.stringify(data));
+            alert('分数已保存到本地！');
+        }
+        
+        // 从本地存储加载分数
+        function loadScores() {
+            const savedData = localStorage.getItem('devops_competition_scores');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                teamCount = data.teamCount;
+                document.getElementById('teamCount').value = teamCount;
+                scores = data.scores;
+                
+                // 重新构建表格
+                const tbody = document.getElementById('scoreTableBody');
+                tbody.innerHTML = '';
+                
+                for (let i = 1; i <= teamCount; i++) {
+                    const teamId = `team${i}`;
+                    const team = scores[teamId];
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="team-name">
+                            <input type="text" value="${team.name}" 
+                                   onchange="updateTeamName('${teamId}', this.value)" 
+                                   style="border:none; background:transparent; font-weight:bold; text-align:center; width:100%;">
+                        </td>
+                        <td class="score-cell" style="background: #e8f5e8;">
+                            <input type="number" class="score-input" min="2" max="5" 
+                                   value="${team.opening}" 
+                                   onchange="updateScore('${teamId}', 'opening', this.value)">
+                        </td>
+                        <td class="score-cell" style="background: #fff3e0;">
+                            <input type="number" class="score-input" min="3" max="10" 
+                                   value="${team.practice1}" 
+                                   onchange="updateScore('${teamId}', 'practice1', this.value)">
+                        </td>
+                        <td class="score-cell" style="background: #fff3e0;">
+                            <input type="number" class="score-input" min="3" max="10" 
+                                   value="${team.practice2}" 
+                                   onchange="updateScore('${teamId}', 'practice2', this.value)">
+                        </td>
+                        <td class="score-cell" style="background: #fff3e0;">
+                            <input type="number" class="score-input" min="3" max="10" 
+                                   value="${team.practice3}" 
+                                   onchange="updateScore('${teamId}', 'practice3', this.value)">
+                        </td>
+                        <td class="score-cell" style="background: #fff3e0;">
+                            <input type="number" class="score-input" min="3" max="10" 
+                                   value="${team.practice4}" 
+                                   onchange="updateScore('${teamId}', 'practice4', this.value)">
+                        </td>
+                        <td class="score-cell" style="background: #fff3e0;">
+                            <input type="number" class="score-input" min="3" max="10" 
+                                   value="${team.practice5}" 
+                                   onchange="updateScore('${teamId}', 'practice5', this.value)">
+                        </td>
+                        <td class="score-cell" style="background: #fff3e0;">
+                            <input type="number" class="score-input" min="3" max="10" 
+                                   value="${team.practice6}" 
+                                   onchange="updateScore('${teamId}', 'practice6', this.value)">
+                        </td>
+                        <td class="score-cell" style="background: #f0f8ff;">
+                            <input type="number" class="score-input" min="2" max="5" 
+                                   value="${team.summary1}" 
+                                   onchange="updateScore('${teamId}', 'summary1', this.value)">
+                        </td>
+                        <td class="score-cell" style="background: #f0f8ff;">
+                            <input type="number" class="score-input" min="2" max="5" 
+                                   value="${team.summary2}" 
+                                   onchange="updateScore('${teamId}', 'summary2', this.value)">
+                        </td>
+                        <td class="score-cell" style="background: #f0f8ff;">
+                            <input type="number" class="score-input" min="2" max="5" 
+                                   value="${team.summary3}" 
+                                   onchange="updateScore('${teamId}', 'summary3', this.value)">
+                        </td>
+                        <td class="score-cell" style="background: #fafafa;">
+                            <input type="number" class="score-input" min="0" max="24" step="3" 
+                                   value="${team.attendance}" 
+                                   onchange="updateScore('${teamId}', 'attendance', this.value)">
+                        </td>
+                        <td class="score-cell" style="background: #f5f5f5;">
+                            <input type="number" class="score-input" min="15" max="40" 
+                                   value="${team.participation}" 
+                                   onchange="updateScore('${teamId}', 'participation', this.value)">
+                        </td>
+                        <td class="score-cell" style="background: #ffe0e0;">
+                            <input type="number" class="score-input" min="8" max="15" 
+                                   value="${team.final}" 
+                                   onchange="updateScore('${teamId}', 'final', this.value)">
+                        </td>
+                        <td class="total-column" id="total_${teamId}">${team.total}</td>
+                        <td class="rank-column" id="rank_${teamId}">${team.rank || '-'}</td>
+                    `;
+                    tbody.appendChild(row);
+                }
+                
+                updateAllTotals();
+                alert(`分数已从本地存储加载！\n保存时间: ${new Date(data.timestamp).toLocaleString()}`);
+            } else {
+                alert('没有找到保存的分数数据！');
+            }
+        }
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeScoreboard();
+        });
+    </script>
+</body>
+</html>
