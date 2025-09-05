@@ -7,5 +7,7 @@
 			"path": "../../../courses-starter"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"powershell.cwd": "courses-teacher"
+	}
 }
