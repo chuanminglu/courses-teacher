@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI+DevOps智能闭环 - 航班调度系统案例</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .poster {
+            width: 1189px; /* A1 比例 */
+            height: 841px;
+            background: white;
+            margin: 0 auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto 1fr auto;
+            gap: 20px;
+            padding: 30px;
+            position: relative;
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            text-align: center;
+            border-bottom: 4px solid #2563eb;
+            padding-bottom: 15px;
+        }
+
+        .title {
+            font-size: 48px;
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 24px;
+            color: #64748b;
+        }
+
+        .section {
+            background: #f8fafc;
+            border: 3px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 15px;
+            text-align: center;
+            background: #2563eb;
+            color: white;
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .problem-box {
+            background: #fee2e2;
+            border: 2px dashed #dc2626;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .solution-box {
+            background: #dcfce7;
+            border: 2px solid #16a34a;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .tool-item {
+            background: #dbeafe;
+            border: 2px solid #3b82f6;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .main-content {
+            grid-column: 1 / -1;
+            background: #f1f5f9;
+            border: 4px solid #0ea5e9;
+            border-radius: 20px;
+            padding: 25px;
+        }
+
+        .main-title {
+            font-size: 28px;
+            color: #0c4a6e;
+            text-align: center;
+            margin-bottom: 20px;
+            background: #0ea5e9;
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .achievement-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .achievement-item {
+            background: white;
+            border: 2px solid #10b981;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .achievement-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #059669;
+        }
+
+        .achievement-label {
+            font-size: 14px;
+            color: #374151;
+            margin-top: 5px;
+        }
+
+        .bottom-section {
+            background: #fef3c7;
+            border: 3px solid #f59e0b;
+        }
+
+        .innovation-highlight {
+            background: linear-gradient(45deg, #fbbf24, #f59e0b);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+
+        .sticky-note {
+            background: #fde047;
+            border: 1px solid #facc15;
+            padding: 8px;
+            font-size: 12px;
+            border-radius: 5px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+            transform: rotate(-2deg);
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .team-badge {
+            position: absolute;
+            top: -15px;
+            left: 30px;
+            background: #dc2626;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .data-comparison {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+        }
+
+        .before-after {
+            text-align: center;
+            flex: 1;
+        }
+
+        .before {
+            color: #dc2626;
+        }
+
+        .after {
+            color: #16a34a;
+        }
+
+        .arrow {
+            font-size: 24px;
+            color: #3b82f6;
+            align-self: center;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .poster {
+                box-shadow: none;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="poster">
+        <div class="team-badge">第1组展示</div>
+        
+        <div class="header">
+            <div class="title">AI+DevOps智能闭环</div>
+            <div class="subtitle">民航智能航班调度系统重构案例</div>
+        </div>
+
+        <div class="section">
+            <div class="sticky-note">4分钟展示</div>
+            <div class="section-title">🎯 项目背景与AI价值</div>
+            
+            <div class="problem-box">
+                <strong>❌ 传统痛点：</strong><br>
+                • 手工调度效率低<br>
+                • 延误预测不准确<br>
+                • 资源配置不优化
+            </div>
+            
+            <div class="solution-box">
+                <strong>✅ AI解决方案：</strong><br>
+                • 智能调度算法<br>
+                • 预测性分析<br>
+                • 自动化决策
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">🛠️ AI工具链核心应用</div>
+            
+            <div class="tool-grid">
+                <div class="tool-item">
+                    <strong>DeepSeek</strong><br>
+                    需求分析
+                </div>
+                <div class="tool-item">
+                    <strong>GitHub Copilot</strong><br>
+                    代码生成
+                </div>
+                <div class="tool-item">
+                    <strong>Playwright AI</strong><br>
+                    自动化测试
+                </div>
+                <div class="tool-item">
+                    <strong>AI监控</strong><br>
+                    智能运维
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="main-title">� 核心成果物展示区域</div>
+            
+            <div class="achievement-grid">
+                <div class="achievement-item">
+                    <div class="achievement-number">📋</div>
+                    <div class="achievement-label">智能PRD文档<br><small>需求规格说明书</small></div>
+                </div>
+                <div class="achievement-item">
+                    <div class="achievement-number">🏗️</div>
+                    <div class="achievement-label">系统架构设计<br><small>技术方案文档</small></div>
+                </div>
+                <div class="achievement-item">
+                    <div class="achievement-number">💻</div>
+                    <div class="achievement-label">调度核心代码<br><small>算法实现库</small></div>
+                </div>
+                <div class="achievement-item">
+                    <div class="achievement-number">🧪</div>
+                    <div class="achievement-label">自动化测试套件<br><small>完整测试脚本</small></div>
+                </div>
+                <div class="achievement-item">
+                    <div class="achievement-number">🚀</div>
+                    <div class="achievement-label">CI/CD流水线<br><small>部署自动化</small></div>
+                </div>
+                <div class="achievement-item">
+                    <div class="achievement-number">📊</div>
+                    <div class="achievement-label">监控仪表板<br><small>运维管理平台</small></div>
+                </div>
+            </div>
+            
+            <div class="data-comparison">
+                <div class="before-after before">
+                    <strong>传统模式</strong><br>
+                    调度时间: 2小时<br>
+                    准确率: 70%
+                </div>
+                <div class="arrow">→</div>
+                <div class="before-after after">
+                    <strong>AI增强</strong><br>
+                    调度时间: 20分钟<br>
+                    准确率: 95%
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">📊 量化效果指标</div>
+            <div class="achievement-grid" style="margin-top: 15px;">
+                <div class="achievement-item" style="grid-column: span 2;">
+                    <div class="achievement-number">80%</div>
+                    <div class="achievement-label">需求分析效率提升</div>
+                </div>
+                <div class="achievement-item" style="grid-column: span 2;">
+                    <div class="achievement-number">65%</div>
+                    <div class="achievement-label">代码生成自动化率</div>
+                </div>
+                <div class="achievement-item" style="grid-column: span 2;">
+                    <div class="achievement-number">90%</div>
+                    <div class="achievement-label">测试用例覆盖率</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">📊 量化成果</div>
+            <p><strong>效率提升：</strong></p>
+            <ul style="margin: 10px 0; padding-left: 20px;">
+                <li>开发周期缩短40%</li>
+                <li>代码质量提升60%</li>
+                <li>故障响应时间减少70%</li>
+            </ul>
+        </div>
+
+        <div class="section bottom-section">
+            <div class="section-title">💡 创新亮点</div>
+            <p><strong>突破性创新：</strong></p>
+            <p>首创"AI驱动的智能调度引擎"，结合机器学习和专家系统，实现航班调度的完全自动化。</p>
+            
+            <div class="innovation-highlight">
+                🏆 核心价值：从反应式运维转向预测式运维
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 添加一些交互效果
+        document.addEventListener('DOMContentLoaded', function() {
+            // 为成果项添加悬停效果
+            const achievements = document.querySelectorAll('.achievement-item');
+            achievements.forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.05)';
+                    this.style.transition = 'transform 0.3s ease';
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+
+            // 工具项的交互效果
+            const tools = document.querySelectorAll('.tool-item');
+            tools.forEach(item => {
+                item.addEventListener('click', function() {
+                    this.style.backgroundColor = '#93c5fd';
+                    setTimeout(() => {
+                        this.style.backgroundColor = '#dbeafe';
+                    }, 200);
+                });
+            });
+        });
+
+        // 模拟计时器功能
+        function startTimer() {
+            let seconds = 0;
+            const timer = setInterval(() => {
+                seconds++;
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+                const timeString = `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+                
+                // 更新便利贴显示时间
+                const stickyNote = document.querySelector('.sticky-note');
+                stickyNote.textContent = `⏱️ ${timeString}`;
+                
+                // 4分钟提醒
+                if (seconds === 240) {
+                    stickyNote.style.backgroundColor = '#fca5a5';
+                    stickyNote.textContent = '⚠️ 时间到！';
+                    clearInterval(timer);
+                }
+            }, 1000);
+        }
+
+        // 页面加载后自动开始计时
+        window.onload = function() {
+            setTimeout(startTimer, 1000);
+        };
+    </script>
+</body>
+</html>

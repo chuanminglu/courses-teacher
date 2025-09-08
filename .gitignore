@@ -37,3 +37,69 @@ replay_pid*
 node_modules/
 package-lock.json
 yarn.lock
+
+# Python相关
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# 虚拟环境
+venv/
+env/
+ENV/
+.venv/
+.env
+env.bak/
+venv.bak/
+
+# 测试相关
+.pytest_cache/
+.coverage
+.tox/
+htmlcov/
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+
+# Playwright测试
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+**/test-results/
+**/playwright-report/
+**/blob-report/
+**/.playwright/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# 项目特定
+ctrip-test/venv/
+ctrip-test/test-results/
+ctrip-test/playwright-report/
+
+# Marp导出文件
+*.pdf
+*.pptx
+!docs/**/*.pdf
+!docs/**/*.pptx
