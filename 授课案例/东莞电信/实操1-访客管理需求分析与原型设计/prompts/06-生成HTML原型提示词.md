@@ -116,10 +116,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{页面标题}</title>
-    
+  
     <!-- Ant Design CSS (CDN) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@5.12.0/dist/reset.css">
-    
+  
     <style>
         /* Ant Design风格样式 */
         :root {
@@ -135,13 +135,13 @@
             --border-color: #d9d9d9;
             --background-color: #f0f2f5;
         }
-        
+      
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+      
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
             background-color: var(--background-color);
@@ -149,7 +149,7 @@
             color: var(--text-color);
             line-height: 1.5715;
         }
-        
+      
         .container {
             max-width: 680px;
             margin: 0 auto;
@@ -158,29 +158,29 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
             padding: 24px;
         }
-        
+      
         .header {
             margin-bottom: 24px;
             padding-bottom: 16px;
             border-bottom: 1px solid #f0f0f0;
         }
-        
+      
         .header h1 {
             font-size: 20px;
             font-weight: 600;
             color: var(--text-color);
             margin-bottom: 8px;
         }
-        
+      
         .header p {
             font-size: 14px;
             color: var(--text-secondary);
         }
-        
+      
         .form-group {
             margin-bottom: 24px;
         }
-        
+      
         .form-group label {
             display: inline-block;
             margin-bottom: 8px;
@@ -188,13 +188,13 @@
             color: var(--text-color);
             font-weight: normal;
         }
-        
+      
         .form-group label.required::before {
             content: "* ";
             color: var(--error-color);
             margin-right: 4px;
         }
-        
+      
         .form-group input,
         .form-group select,
         .form-group textarea {
@@ -208,20 +208,20 @@
             background-color: #fff;
             transition: all 0.3s;
         }
-        
+      
         .form-group textarea {
             height: auto;
             min-height: 80px;
             padding: 8px 11px;
             resize: vertical;
         }
-        
+      
         .form-group input:hover,
         .form-group select:hover,
         .form-group textarea:hover {
             border-color: var(--primary-hover);
         }
-        
+      
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
@@ -229,7 +229,7 @@
             border-color: var(--primary-color);
             box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
         }
-        
+      
         .form-group .error-message {
             color: var(--error-color);
             font-size: 14px;
@@ -237,24 +237,24 @@
             display: none;
             line-height: 1.5715;
         }
-        
+      
         .form-group.has-error input,
         .form-group.has-error select,
         .form-group.has-error textarea {
             border-color: var(--error-color);
             background-color: #fff;
         }
-        
+      
         .form-group.has-error input:focus,
         .form-group.has-error select:focus,
         .form-group.has-error textarea:focus {
             box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
         }
-        
+      
         .form-group.has-error .error-message {
             display: block;
         }
-        
+      
         .btn {
             height: 32px;
             padding: 4px 15px;
@@ -271,24 +271,24 @@
             white-space: nowrap;
             text-align: center;
         }
-        
+      
         .btn-primary {
             background-color: var(--primary-color);
             color: #fff;
             border-color: var(--primary-color);
             box-shadow: 0 2px 0 rgba(0, 0, 0, 0.043);
         }
-        
+      
         .btn-primary:hover {
             background-color: var(--primary-hover);
             border-color: var(--primary-hover);
         }
-        
+      
         .btn-primary:active {
             background-color: var(--primary-active);
             border-color: var(--primary-active);
         }
-        
+      
         .btn-primary:disabled {
             background-color: #f5f5f5;
             border-color: var(--border-color);
@@ -296,24 +296,24 @@
             cursor: not-allowed;
             box-shadow: none;
         }
-        
+      
         .btn-default {
             background-color: #fff;
             border-color: var(--border-color);
             color: var(--text-color);
             margin-left: 8px;
         }
-        
+      
         .btn-default:hover {
             color: var(--primary-hover);
             border-color: var(--primary-hover);
         }
-        
+      
         .btn-default:active {
             color: var(--primary-active);
             border-color: var(--primary-active);
         }
-        
+      
         .message {
             position: fixed;
             top: 24px;
@@ -330,27 +330,27 @@
             font-size: 14px;
             line-height: 1.5715;
         }
-        
+      
         .message.success {
             color: var(--success-color);
         }
-        
+      
         .message.success::before {
             content: "✓ ";
             font-weight: bold;
             margin-right: 8px;
         }
-        
+      
         .message.error {
             color: var(--error-color);
         }
-        
+      
         .message.error::before {
             content: "✕ ";
             font-weight: bold;
             margin-right: 8px;
         }
-        
+      
         .loading {
             display: none;
             position: fixed;
@@ -363,11 +363,11 @@
             align-items: center;
             justify-content: center;
         }
-        
+      
         .loading.show {
             display: flex;
         }
-        
+      
         .spinner {
             width: 32px;
             height: 32px;
@@ -376,22 +376,22 @@
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
-        
+      
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
+      
         /* 响应式设计 */
         @media (max-width: 768px) {
             body {
                 padding: 16px;
             }
-            
+          
             .container {
                 padding: 16px;
             }
-            
+          
             .header h1 {
                 font-size: 18px;
             }
@@ -403,10 +403,10 @@
     <div class="loading" id="loading">
         <div class="spinner"></div>
     </div>
-    
+  
     <!-- 消息提示 -->
     <div class="message" id="message"></div>
-    
+  
     <!-- 主容器 -->
     <div class="container">
         <!-- 页面头部 -->
@@ -414,7 +414,7 @@
             <h1>{页面标题}</h1>
             <p>{页面描述}</p>
         </div>
-        
+      
         <!-- 表单区域 -->
         <form id="mainForm" novalidate>
             <!-- 表单字段 -->
@@ -429,9 +429,9 @@
                 />
                 <div class="error-message">{错误提示文本}</div>
             </div>
-            
+          
             <!-- 更多字段... -->
-            
+          
             <!-- 按钮组 -->
             <div class="form-group" style="text-align: right; margin-top: 24px; padding-top: 24px; border-top: 1px solid #f0f0f0;">
                 <button type="button" class="btn btn-default" id="cancelBtn">
@@ -443,28 +443,28 @@
             </div>
         </form>
     </div>
-    
+  
     <script>
         // ========== 工具函数 ==========
-        
+      
         // 显示消息提示
         function showMessage(text, type = 'success') {
             const messageEl = document.getElementById('message');
             messageEl.textContent = text;
             messageEl.className = `message ${type}`;
             messageEl.style.display = 'block';
-            
+          
             setTimeout(() => {
                 messageEl.style.display = 'none';
             }, 3000);
         }
-        
+      
         // 显示/隐藏加载动画
         function showLoading(show) {
             const loadingEl = document.getElementById('loading');
             loadingEl.className = show ? 'loading show' : 'loading';
         }
-        
+      
         // 表单验证函数
         const validators = {
             // 手机号验证
@@ -472,34 +472,34 @@
                 const regex = /^1[3-9]\d{9}$/;
                 return regex.test(value) ? null : '请输入正确的手机号';
             },
-            
+          
             // 身份证号验证
             idCard: (value) => {
                 const regex = /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx]$/;
                 return regex.test(value) ? null : '请输入正确的身份证号';
             },
-            
+          
             // 邮箱验证
             email: (value) => {
                 const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 return regex.test(value) ? null : '请输入正确的邮箱地址';
             },
-            
+          
             // 必填验证
             required: (value) => {
                 return value.trim() !== '' ? null : '此字段为必填项';
             }
         };
-        
+      
         // 验证单个字段
         function validateField(field) {
             const formGroup = field.closest('.form-group');
             const errorEl = formGroup.querySelector('.error-message');
             const fieldType = field.dataset.validate;
-            
+          
             // 清除之前的错误状态
             formGroup.classList.remove('has-error');
-            
+          
             // 必填验证
             if (field.hasAttribute('required')) {
                 const error = validators.required(field.value);
@@ -509,7 +509,7 @@
                     return false;
                 }
             }
-            
+          
             // 特定类型验证
             if (fieldType && validators[fieldType]) {
                 const error = validators[fieldType](field.value);
@@ -519,84 +519,84 @@
                     return false;
                 }
             }
-            
+          
             return true;
         }
-        
+      
         // 验证整个表单
         function validateForm(form) {
             const fields = form.querySelectorAll('input[required], select[required], textarea[required]');
             let isValid = true;
-            
+          
             fields.forEach(field => {
                 if (!validateField(field)) {
                     isValid = false;
                 }
             });
-            
+          
             return isValid;
         }
-        
+      
         // ========== 页面初始化 ==========
-        
+      
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('mainForm');
             const submitBtn = document.getElementById('submitBtn');
             const cancelBtn = document.getElementById('cancelBtn');
-            
+          
             // 字段失焦验证
             form.querySelectorAll('input, select, textarea').forEach(field => {
                 field.addEventListener('blur', () => {
                     validateField(field);
                 });
-                
+              
                 // 输入时清除错误状态
                 field.addEventListener('input', () => {
                     const formGroup = field.closest('.form-group');
                     formGroup.classList.remove('has-error');
                 });
             });
-            
+          
             // 表单提交
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
-                
+              
                 // 验证表单
                 if (!validateForm(form)) {
                     showMessage('请检查表单填写是否正确', 'error');
                     return;
                 }
-                
+              
                 // 收集表单数据
                 const formData = new FormData(form);
                 const data = Object.fromEntries(formData.entries());
-                
+              
                 console.log('提交的数据：', data);
-                
+              
                 // 显示加载动画
                 showLoading(true);
                 submitBtn.disabled = true;
                 submitBtn.textContent = '提交中...';
-                
+              
                 // 模拟API调用（2秒延迟）
                 setTimeout(() => {
                     showLoading(false);
                     submitBtn.disabled = false;
                     submitBtn.textContent = '{按钮文本}';
-                    
+                  
                     // 模拟成功
                     showMessage('提交成功', 'success');
-                    
+                  
                     // 跳转到下一页（2秒后）
                     setTimeout(() => {
                         window.location.href = '{下一页面.html}';
                     }, 2000);
-                    
+                  
                     // 如需模拟失败，使用：
                     // showMessage('提交失败，请重试', 'error');
                 }, 2000);
             });
-            
+          
             // 取消按钮
             if (cancelBtn) {
                 cancelBtn.addEventListener('click', function() {
@@ -618,16 +618,15 @@
 #### HTML结构（强制）
 
 - 使用语义化HTML5标签
-- 表单使用`<form>`标签，字段使用正确的`type`属性
-- 所有`<label>`关联对应的`<input>`（使用`for`属性）
-- 图片必须有`alt`属性
+- 表单使用 `<form>`标签，字段使用正确的 `type`属性
+- 所有 `<label>`关联对应的 `<input>`（使用 `for`属性）
+- 图片必须有 `alt`属性
 
 #### CSS样式（强制）
 
-- **UI风格**：使用Ant Design设计规范（通过CDN引入CSS或使用内联样式模拟）
-- **主题色**：使用Ant Design默认主题色（#1890ff）
+- **UIz**
 - **组件样式**：按钮、表单、消息提示等遵循Ant Design风格
-- 使用内联`<style>`标签，避免外部CSS文件依赖
+- 使用内联 `<style>`标签，避免外部CSS文件依赖
 - 实现响应式布局（@media查询）
 - 提供必要的交互反馈样式（hover、focus、disabled）
 - 错误状态使用Ant Design错误色（#ff4d4f），成功状态使用成功色（#52c41a）
@@ -651,12 +650,12 @@
 
 #### 数据存储
 
-- 使用`localStorage`临时存储表单数据（模拟后端）
-- 页面间传递参数使用URL参数或`sessionStorage`
+- 使用 `localStorage`临时存储表单数据（模拟后端）
+- 页面间传递参数使用URL参数或 `sessionStorage`
 
 #### API模拟
 
-- 使用`setTimeout`模拟网络延迟（1-3秒）
+- 使用 `setTimeout`模拟网络延迟（1-3秒）
 - 使用随机数模拟成功/失败（可选）
 - 在控制台打印模拟的API请求和响应
 
@@ -692,30 +691,31 @@
 ### 如何使用此提示词
 
 1. **准备输入材料**
+
    - 页面元素分析结果（步骤4）
    - 交互逻辑设计（步骤5）
-
 2. **复制提示词**
-   - 从"你是一位资深前端开发工程师"开始
 
+   - 从"你是一位资深前端开发工程师"开始
 3. **粘贴到AI工具**
+
    - 将提示词和输入材料一起提交
    - **建议每次只生成1个页面**，避免回复过长
-
 4. **生成HTML代码**
-   - AI将生成完整的HTML文件代码
 
+   - AI将生成完整的HTML文件代码
 5. **保存和测试**
-   - 将代码保存为`.html`文件
+
+   - 将代码保存为 `.html`文件
    - 双击文件在浏览器中打开
    - 测试所有交互功能
-
 6. **人工优化**（可选）
+
    - 调整样式细节
    - 优化交互动画
    - 补充遗漏的功能
-
 7. **交付**
+
    - 打包所有HTML文件
    - 提供原型使用说明
    - 演示给相关方
@@ -742,6 +742,7 @@
 ---
 
 **📌 重要提醒**：
+
 - HTML原型是中低保真原型，重点是交互逻辑而非视觉细节
 - 代码应简洁易读，方便后续修改
 - 如果页面较多，建议分批生成（每次1-2个页面）

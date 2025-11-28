@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>访客预约申请 - 访客管理系统</title>
+    
+    <style>
+        /* ========== Ant Design风格样式 ========== */
+        :root {
+            --primary-color: #1890ff;
+            --primary-hover: #40a9ff;
+            --primary-active: #096dd9;
+            --success-color: #52c41a;
+            --warning-color: #faad14;
+            --error-color: #ff4d4f;
+            --text-color: rgba(0, 0, 0, 0.85);
+            --text-secondary: rgba(0, 0, 0, 0.65);
+            --text-disabled: rgba(0, 0, 0, 0.25);
+            --border-color: #d9d9d9;
+            --border-color-light: #f0f0f0;
+            --background-color: #f0f2f5;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5715;
+            font-size: 14px;
+        }
+        
+        .page-container {
+            min-height: 100vh;
+            padding: 24px 16px;
+        }
+        
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 2px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
+            padding: 24px;
+        }
+        
+        /* 页面头部 */
+        .header {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color-light);
+        }
+        
+        .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .required-mark {
+            color: var(--error-color);
+            margin-right: 4px;
+        }
+        
+        /* 表单区域 */
+        .form-section {
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border-color-light);
+        }
+        
+        .form-section:last-of-type {
+            border-bottom: none;
+        }
+        
+        .form-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 16px;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--text-color);
+            font-weight: normal;
+        }
+        
+        .form-group input[type="text"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 4px 11px;
+            height: 32px;
+            border: 1px solid var(--border-color);
+            border-radius: 2px;
+            font-size: 14px;
+            color: var(--text-color);
+            background-color: #fff;
+            transition: all 0.3s;
+        }
+        
+        .form-group textarea {
+            height: auto;
+            min-height: 80px;
+            padding: 8px 11px;
+            resize: vertical;
+        }
+        
+        .form-group input:hover,
+        .form-group select:hover,
+        .form-group textarea:hover {
+            border-color: var(--primary-hover);
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+        
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #bfbfbf;
+        }
+        
+        /* 错误状态 */
+        .form-group.has-error input,
+        .form-group.has-error select,
+        .form-group.has-error textarea {
+            border-color: var(--error-color);
+        }
+        
+        .form-group.has-error input:focus,
+        .form-group.has-error select:focus,
+        .form-group.has-error textarea:focus {
+            box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
+        }
+        
+        .error-message {
+            color: var(--error-color);
+            font-size: 14px;
+            margin-top: 8px;
+            display: none;
+            line-height: 1.5715;
+        }
+        
+        .form-group.has-error .error-message {
+            display: block;
+        }
+        
+        /* 照片上传组件 */
+        .photo-upload {
+            display: inline-block;
+        }
+        
+        .upload-btn {
+            width: 120px;
+            height: 160px;
+            border: 1px dashed var(--border-color);
+            border-radius: 2px;
+            background-color: #fafafa;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .upload-btn:hover {
+            border-color: var(--primary-color);
+        }
+        
+        .upload-btn .icon {
+            font-size: 32px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .upload-btn .text {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .photo-preview {
+            position: relative;
+            width: 120px;
+            height: 160px;
+            border: 1px solid var(--border-color);
+            border-radius: 2px;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .photo-preview.show {
+            display: block;
+        }
+        
+        .photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .photo-preview .delete-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 24px;
+            height: 24px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border: none;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+            padding: 0;
+        }
+        
+        .photo-preview .delete-btn:hover {
+            background: rgba(0, 0, 0, 0.7);
+        }
+        
+        .upload-tip {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+        
+        /* 被访人搜索组件 */
+        .search-wrapper {
+            position: relative;
+        }
+        
+        .search-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 300px;
+            overflow-y: auto;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 2px 2px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            display: none;
+            z-index: 100;
+        }
+        
+        .search-list.show {
+            display: block;
+        }
+        
+        .search-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .search-item:hover {
+            background: #f5f5f5;
+        }
+        
+        .search-item .name {
+            font-size: 14px;
+            color: var(--text-color);
+        }
+        
+        .search-item .dept {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-left: 8px;
+        }
+        
+        .search-item .emp-no {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-left: 8px;
+        }
+        
+        .search-empty {
+            padding: 16px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .selected-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            background: #f0f5ff;
+            border: 1px solid #adc6ff;
+            border-radius: 2px;
+            font-size: 14px;
+            color: var(--primary-color);
+            display: none;
+        }
+        
+        .selected-tag.show {
+            display: inline-flex;
+        }
+        
+        .selected-tag .tag-close {
+            margin-left: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--primary-color);
+        }
+        
+        .selected-tag .tag-close:hover {
+            color: var(--primary-active);
+        }
+        
+        /* 单选框组 */
+        .radio-group {
+            display: flex;
+            gap: 24px;
+        }
+        
+        .radio-item {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .radio-item input[type="radio"] {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            cursor: pointer;
+        }
+        
+        .radio-item label {
+            margin: 0;
+            cursor: pointer;
+        }
+        
+        /* 按钮 */
+        .btn {
+            height: 32px;
+            padding: 4px 15px;
+            border: 1px solid transparent;
+            border-radius: 2px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+            user-select: none;
+            line-height: 1.5715;
+            display: inline-block;
+            font-weight: 400;
+            white-space: nowrap;
+            text-align: center;
+            background: transparent;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.043);
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
+        }
+        
+        .btn-primary:active {
+            background-color: var(--primary-active);
+            border-color: var(--primary-active);
+        }
+        
+        .btn-primary:disabled {
+            background-color: #f5f5f5;
+            border-color: var(--border-color);
+            color: var(--text-disabled);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        .btn-block {
+            width: 100%;
+        }
+        
+        .form-actions {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color-light);
+        }
+        
+        /* Toast消息 */
+        .toast {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 16px;
+            border-radius: 2px;
+            box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 
+                        0 6px 16px 0 rgba(0, 0, 0, 0.08), 
+                        0 9px 28px 8px rgba(0, 0, 0, 0.05);
+            background: #fff;
+            font-size: 14px;
+            line-height: 1.5715;
+            z-index: 2000;
+            display: none;
+            animation: slideInDown 0.2s ease-out;
+        }
+        
+        .toast.show {
+            display: block;
+        }
+        
+        .toast.success {
+            color: var(--success-color);
+        }
+        
+        .toast.success::before {
+            content: "✓ ";
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .toast.error {
+            color: var(--error-color);
+        }
+        
+        .toast.error::before {
+            content: "✕ ";
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        /* 警告条 */
+        .alert {
+            padding: 8px 15px;
+            border-radius: 2px;
+            margin-bottom: 16px;
+            display: none;
+        }
+        
+        .alert.show {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .alert.warning {
+            background: #fffbe6;
+            border: 1px solid #ffe58f;
+            color: #faad14;
+        }
+        
+        .alert .alert-close {
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 12px;
+        }
+        
+        /* 加载遮罩 */
+        .loading-mask {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .loading-mask.show {
+            display: flex;
+        }
+        
+        .loading-content {
+            text-align: center;
+            color: #fff;
+        }
+        
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        
+        /* 照片上传弹窗（模拟P3） */
+        .photo-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 1500;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        
+        .photo-modal.show {
+            display: flex;
+            animation: fadeIn 0.25s ease-out;
+        }
+        
+        .photo-modal-content {
+            background: #fff;
+            border-radius: 8px 8px 0 0;
+            width: 100%;
+            max-width: 680px;
+            animation: slideUp 0.25s ease-out;
+        }
+        
+        .photo-modal-menu {
+            padding: 0;
+        }
+        
+        .photo-modal-item {
+            padding: 16px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color-light);
+            cursor: pointer;
+            font-size: 16px;
+            color: var(--text-color);
+            transition: background 0.3s;
+        }
+        
+        .photo-modal-item:hover {
+            background: #f5f5f5;
+        }
+        
+        .photo-modal-item.cancel {
+            color: var(--text-secondary);
+            border-bottom: none;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .page-container {
+                padding: 16px 12px;
+            }
+            
+            .container {
+                padding: 16px;
+            }
+            
+            .header h1 {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!--
+        【原型说明】
+        - 这是US-001"访客在线提交预约申请"的交互原型
+        - UI风格：采用Ant Design设计规范
+        - 数据提交为模拟实现，使用localStorage存储
+        - 照片上传使用文件选择器模拟（实际应调用微信JSSDK）
+        - 仅支持现代浏览器（Chrome、Edge、Firefox、Safari）
+    -->
+    
+    <!-- Toast消息提示 -->
+    <div class="toast" id="toast"></div>
+    
+    <!-- 加载遮罩 -->
+    <div class="loading-mask" id="loadingMask">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <div>正在提交预约...</div>
+        </div>
+    </div>
+    
+    <!-- 照片上传弹窗（模拟P3） -->
+    <div class="photo-modal" id="photoModal">
+        <div class="photo-modal-content">
+            <div class="photo-modal-menu">
+                <div class="photo-modal-item" id="takePhoto">📷 拍照</div>
+                <div class="photo-modal-item" id="choosePhoto">🖼️ 从相册选择</div>
+                <div class="photo-modal-item cancel" id="cancelPhoto">取消</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 页面主容器 -->
+    <div class="page-container">
+        <div class="container">
+            <!-- 页面头部 -->
+            <div class="header">
+                <h1>访客预约申请</h1>
+                <p>请如实填写以下信息，带<span class="required-mark">*</span>为必填项</p>
+            </div>
+            
+            <!-- 重复提交警告 -->
+            <div class="alert warning" id="duplicateAlert">
+                <span>⚠️ 您今天已提交过预约，同一天只能提交1次</span>
+                <span class="alert-close" onclick="this.parentElement.classList.remove('show')">✕</span>
+            </div>
+            
+            <!-- 表单 -->
+            <form id="appointmentForm" novalidate>
+                <!-- 个人信息区域 -->
+                <div class="form-section">
+                    <h2 class="form-section-title">个人信息</h2>
+                    
+                    <!-- F1: 访客姓名 -->
+                    <div class="form-group" data-field="visitorName">
+                        <label for="visitorName">
+                            <span class="required-mark">*</span>访客姓名
+                        </label>
+                        <input 
+                            type="text" 
+                            id="visitorName" 
+                            name="visitorName"
+                            placeholder="请输入真实姓名"
+                            maxlength="20"
+                            required
+                            data-validate="name"
+                        />
+                        <div class="error-message">请填写访客姓名</div>
+                    </div>
+                    
+                    <!-- F2: 手机号码 -->
+                    <div class="form-group" data-field="visitorPhone">
+                        <label for="visitorPhone">
+                            <span class="required-mark">*</span>手机号码
+                        </label>
+                        <input 
+                            type="text" 
+                            id="visitorPhone" 
+                            name="visitorPhone"
+                            placeholder="请输入11位手机号"
+                            maxlength="11"
+                            required
+                            data-validate="phone"
+                        />
+                        <div class="error-message">手机号格式不正确，请填写11位手机号</div>
+                    </div>
+                    
+                    <!-- F3: 身份证号 -->
+                    <div class="form-group" data-field="visitorIdCard">
+                        <label for="visitorIdCard">
+                            <span class="required-mark">*</span>身份证号
+                        </label>
+                        <input 
+                            type="text" 
+                            id="visitorIdCard" 
+                            name="visitorIdCard"
+                            placeholder="请输入18位身份证号"
+                            maxlength="18"
+                            required
+                            data-validate="idCard"
+                        />
+                        <div class="error-message">身份证号格式不正确，请填写18位身份证号</div>
+                    </div>
+                    
+                    <!-- F4: 访客照片 -->
+                    <div class="form-group" data-field="visitorPhoto">
+                        <label>
+                            <span class="required-mark">*</span>访客照片
+                        </label>
+                        <div class="photo-upload">
+                            <div class="upload-btn" id="uploadBtn">
+                                <div class="icon">📷</div>
+                                <div class="text">上传照片</div>
+                            </div>
+                            <div class="photo-preview" id="photoPreview">
+                                <img id="photoImg" src="" alt="访客照片">
+                                <button type="button" class="delete-btn" id="deletePhoto">✕</button>
+                            </div>
+                        </div>
+                        <div class="upload-tip">支持JPG/PNG格式，文件不超过5MB</div>
+                        <input type="file" id="photoInput" accept="image/jpeg,image/png" style="display: none;">
+                        <input type="hidden" id="visitorPhoto" name="visitorPhoto" required>
+                        <div class="error-message">请上传本人近期照片</div>
+                    </div>
+                </div>
+                
+                <!-- 来访信息区域 -->
+                <div class="form-section">
+                    <h2 class="form-section-title">来访信息</h2>
+                    
+                    <!-- F5: 来访目的 -->
+                    <div class="form-group" data-field="visitPurpose">
+                        <label for="visitPurpose">
+                            <span class="required-mark">*</span>来访目的
+                        </label>
+                        <select 
+                            id="visitPurpose" 
+                            name="visitPurpose"
+                            required
+                        >
+                            <option value="">请选择来访目的</option>
+                            <option value="业务洽谈">业务洽谈</option>
+                            <option value="参观考察">参观考察</option>
+                            <option value="面试招聘">面试招聘</option>
+                            <option value="其他">其他</option>
+                        </select>
+                        <div class="error-message">请选择来访目的</div>
+                    </div>
+                    
+                    <!-- F6: 其他说明 -->
+                    <div class="form-group" id="otherDescGroup" style="display: none;" data-field="visitPurposeDesc">
+                        <label for="visitPurposeDesc">
+                            <span class="required-mark">*</span>其他说明
+                        </label>
+                        <textarea 
+                            id="visitPurposeDesc" 
+                            name="visitPurposeDesc"
+                            placeholder="若选择"其他"，请说明具体事由"
+                            maxlength="200"
+                        ></textarea>
+                        <div class="error-message">请说明具体事由</div>
+                    </div>
+                    
+                    <!-- F7: 访问日期 -->
+                    <div class="form-group" data-field="visitDate">
+                        <label for="visitDate">
+                            <span class="required-mark">*</span>访问日期
+                        </label>
+                        <input 
+                            type="date" 
+                            id="visitDate" 
+                            name="visitDate"
+                            required
+                            data-validate="date"
+                        />
+                        <div class="error-message">请选择访问日期</div>
+                    </div>
+                    
+                    <!-- F8: 访问时段 -->
+                    <div class="form-group" data-field="visitTimeSlot">
+                        <label>
+                            <span class="required-mark">*</span>访问时段
+                        </label>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="timeAm" name="visitTimeSlot" value="上午" required>
+                                <label for="timeAm">上午(8:00-12:00)</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="timePm" name="visitTimeSlot" value="下午" required>
+                                <label for="timePm">下午(13:00-18:00)</label>
+                            </div>
+                        </div>
+                        <div class="error-message">请选择访问时段</div>
+                    </div>
+                    
+                    <!-- F9: 被访人 -->
+                    <div class="form-group" data-field="visiteeId">
+                        <label for="visiteeSearch">
+                            <span class="required-mark">*</span>被访人
+                        </label>
+                        <div class="search-wrapper">
+                            <input 
+                                type="text" 
+                                id="visiteeSearch" 
+                                placeholder="请输入被访人姓名或工号"
+                                autocomplete="off"
+                            />
+                            <div class="search-list" id="searchList"></div>
+                        </div>
+                        <div class="selected-tag" id="selectedTag">
+                            <span id="selectedName"></span>
+                            <span class="tag-close" id="clearVisitee">✕</span>
+                        </div>
+                        <input type="hidden" id="visiteeId" name="visiteeId" required>
+                        <div class="error-message">请选择被访人</div>
+                    </div>
+                </div>
+                
+                <!-- 提交按钮 -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
+                        提交预约
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // ========== 模拟数据 ==========
+        
+        // 模拟员工列表（被访人数据）
+        const employees = [
+            { id: 1, name: '张三', dept: '技术部', empNo: 'E001' },
+            { id: 2, name: '李四', dept: '产品部', empNo: 'E002' },
+            { id: 3, name: '王五', dept: '市场部', empNo: 'E003' },
+            { id: 4, name: '赵六', dept: '人力资源部', empNo: 'E004' },
+            { id: 5, name: '钱七', dept: '财务部', empNo: 'E005' },
+            { id: 6, name: '孙八', dept: '技术部', empNo: 'E006' },
+            { id: 7, name: '周九', dept: '运营部', empNo: 'E007' },
+            { id: 8, name: '吴十', dept: '客服部', empNo: 'E008' }
+        ];
+        
+        // ========== 工具函数 ==========
+        
+        // 显示Toast消息
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, type === 'success' ? 2000 : 3000);
+        }
+        
+        // 显示/隐藏加载遮罩
+        function showLoading(show) {
+            const mask = document.getElementById('loadingMask');
+            mask.classList.toggle('show', show);
+        }
+        
+        // 表单验证器
+        const validators = {
+            // 姓名验证
+            name: (value) => {
+                const regex = /^[\u4e00-\u9fa5a-zA-Z·]{2,20}$/;
+                if (!value.trim()) return '请填写访客姓名';
+                if (!regex.test(value)) return '姓名长度为2-20个字符，支持中英文';
+                return null;
+            },
+            
+            // 手机号验证
+            phone: (value) => {
+                const regex = /^1[3-9]\d{9}$/;
+                if (!value.trim()) return '请填写手机号码';
+                if (!regex.test(value)) return '手机号格式不正确，请填写11位手机号';
+                return null;
+            },
+            
+            // 身份证号验证
+            idCard: (value) => {
+                const regex = /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx]$/;
+                if (!value.trim()) return '请填写身份证号';
+                if (!regex.test(value)) return '身份证号格式不正确，请填写18位身份证号';
+                return null;
+            },
+            
+            // 日期验证
+            date: (value) => {
+                if (!value) return '请选择访问日期';
+                
+                const selectedDate = new Date(value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                const maxDate = new Date(today);
+                maxDate.setDate(maxDate.getDate() + 30);
+                
+                if (selectedDate < today) return '访问日期不能早于今天';
+                if (selectedDate > maxDate) return '访问日期不能超过30天后';
+                
+                return null;
+            },
+            
+            // 必填验证
+            required: (value) => {
+                return value && value.trim() !== '' ? null : '此字段为必填项';
+            }
+        };
+        
+        // 验证单个字段
+        function validateField(field) {
+            const formGroup = field.closest('.form-group');
+            if (!formGroup) return true;
+            
+            const errorEl = formGroup.querySelector('.error-message');
+            const validateType = field.dataset.validate;
+            
+            // 清除错误状态
+            formGroup.classList.remove('has-error');
+            
+            // 必填验证
+            if (field.hasAttribute('required')) {
+                const error = validators.required(field.value);
+                if (error) {
+                    formGroup.classList.add('has-error');
+                    if (errorEl) {
+                        const originalError = errorEl.textContent;
+                        errorEl.textContent = error;
+                        // 恢复原始错误信息
+                        setTimeout(() => {
+                            if (!formGroup.classList.contains('has-error')) {
+                                errorEl.textContent = originalError;
+                            }
+                        }, 100);
+                    }
+                    return false;
+                }
+            }
+            
+            // 特定类型验证
+            if (validateType && validators[validateType]) {
+                const error = validators[validateType](field.value);
+                if (error) {
+                    formGroup.classList.add('has-error');
+                    if (errorEl) errorEl.textContent = error;
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        
+        // 验证整个表单
+        function validateForm() {
+            let isValid = true;
+            let firstErrorField = null;
+            
+            // 验证所有必填字段
+            const fields = document.querySelectorAll('[required]');
+            fields.forEach(field => {
+                if (field.type === 'hidden' || field.type === 'file') {
+                    // 特殊处理hidden和file字段
+                    const formGroup = field.closest('.form-group');
+                    if (formGroup && !field.value) {
+                        formGroup.classList.add('has-error');
+                        isValid = false;
+                        if (!firstErrorField) firstErrorField = formGroup;
+                    }
+                } else if (!validateField(field)) {
+                    isValid = false;
+                    if (!firstErrorField) firstErrorField = field;
+                }
+            });
+            
+            // 滚动到第一个错误字段
+            if (firstErrorField) {
+                firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            
+            return isValid;
+        }
+        
+        // 检查是否今天已提交
+        function checkDuplicateSubmission() {
+            const submissions = JSON.parse(localStorage.getItem('appointments') || '[]');
+            const today = new Date().toDateString();
+            
+            const todaySubmission = submissions.find(s => {
+                const submitDate = new Date(s.createTime).toDateString();
+                return submitDate === today;
+            });
+            
+            return !!todaySubmission;
+        }
+        
+        // 生成预约单号
+        function generateAppointmentNumber() {
+            const now = new Date();
+            const year = now.getFullYear().toString().slice(-2);
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const seq = String(Math.floor(Math.random() * 10000)).padStart(4, '0');
+            return `YY${year}${month}${day}${seq}`;
+        }
+        
+        // ========== 页面初始化 ==========
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查今天是否已提交
+            if (checkDuplicateSubmission()) {
+                document.getElementById('duplicateAlert').classList.add('show');
+                document.getElementById('submitBtn').disabled = true;
+            }
+            
+            // 设置日期选择器最小和最大日期
+            const dateInput = document.getElementById('visitDate');
+            const today = new Date();
+            const maxDate = new Date(today);
+            maxDate.setDate(maxDate.getDate() + 30);
+            
+            dateInput.min = today.toISOString().split('T')[0];
+            dateInput.max = maxDate.toISOString().split('T')[0];
+            
+            // ========== 表单字段交互 ==========
+            
+            // 字段失焦验证
+            document.querySelectorAll('input, select, textarea').forEach(field => {
+                field.addEventListener('blur', () => {
+                    validateField(field);
+                });
+                
+                // 输入时清除错误状态
+                field.addEventListener('input', () => {
+                    const formGroup = field.closest('.form-group');
+                    if (formGroup) formGroup.classList.remove('has-error');
+                });
+            });
+            
+            // F5: 来访目的改变时显示/隐藏其他说明
+            const visitPurpose = document.getElementById('visitPurpose');
+            const otherDescGroup = document.getElementById('otherDescGroup');
+            const visitPurposeDesc = document.getElementById('visitPurposeDesc');
+            
+            visitPurpose.addEventListener('change', function() {
+                if (this.value === '其他') {
+                    otherDescGroup.style.display = 'block';
+                    visitPurposeDesc.required = true;
+                } else {
+                    otherDescGroup.style.display = 'none';
+                    visitPurposeDesc.required = false;
+                    visitPurposeDesc.value = '';
+                    otherDescGroup.querySelector('.form-group').classList.remove('has-error');
+                }
+            });
+            
+            // ========== F4: 照片上传交互 ==========
+            
+            const uploadBtn = document.getElementById('uploadBtn');
+            const photoModal = document.getElementById('photoModal');
+            const photoInput = document.getElementById('photoInput');
+            const photoPreview = document.getElementById('photoPreview');
+            const photoImg = document.getElementById('photoImg');
+            const deletePhoto = document.getElementById('deletePhoto');
+            const visitorPhoto = document.getElementById('visitorPhoto');
+            
+            // 点击上传按钮显示弹窗
+            uploadBtn.addEventListener('click', () => {
+                photoModal.classList.add('show');
+            });
+            
+            // 拍照（模拟，实际打开文件选择器）
+            document.getElementById('takePhoto').addEventListener('click', () => {
+                photoModal.classList.remove('show');
+                photoInput.click();
+            });
+            
+            // 从相册选择
+            document.getElementById('choosePhoto').addEventListener('click', () => {
+                photoModal.classList.remove('show');
+                photoInput.click();
+            });
+            
+            // 取消
+            document.getElementById('cancelPhoto').addEventListener('click', () => {
+                photoModal.classList.remove('show');
+            });
+            
+            // 点击遮罩关闭弹窗
+            photoModal.addEventListener('click', (e) => {
+                if (e.target === photoModal) {
+                    photoModal.classList.remove('show');
+                }
+            });
+            
+            // 文件选择处理
+            photoInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                // 验证文件类型
+                if (!['image/jpeg', 'image/png'].includes(file.type)) {
+                    showToast('照片格式不支持，请上传JPG或PNG格式', 'error');
+                    return;
+                }
+                
+                // 验证文件大小
+                if (file.size > 5 * 1024 * 1024) {
+                    showToast('照片大小不能超过5MB', 'error');
+                    return;
+                }
+                
+                // 读取文件并显示预览
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    photoImg.src = e.target.result;
+                    visitorPhoto.value = e.target.result; // 存储base64
+                    uploadBtn.style.display = 'none';
+                    photoPreview.classList.add('show');
+                    
+                    // 清除错误状态
+                    const formGroup = visitorPhoto.closest('.form-group');
+                    if (formGroup) formGroup.classList.remove('has-error');
+                    
+                    showToast('照片上传成功');
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            // 删除照片
+            deletePhoto.addEventListener('click', () => {
+                photoImg.src = '';
+                visitorPhoto.value = '';
+                photoInput.value = '';
+                uploadBtn.style.display = 'flex';
+                photoPreview.classList.remove('show');
+            });
+            
+            // ========== F9: 被访人搜索交互 ==========
+            
+            const visiteeSearch = document.getElementById('visiteeSearch');
+            const searchList = document.getElementById('searchList');
+            const selectedTag = document.getElementById('selectedTag');
+            const selectedName = document.getElementById('selectedName');
+            const visiteeId = document.getElementById('visiteeId');
+            const clearVisitee = document.getElementById('clearVisitee');
+            
+            let searchTimeout;
+            
+            // 搜索输入
+            visiteeSearch.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                const keyword = this.value.trim().toLowerCase();
+                
+                if (!keyword) {
+                    searchList.classList.remove('show');
+                    return;
+                }
+                
+                // 防抖300ms
+                searchTimeout = setTimeout(() => {
+                    const results = employees.filter(emp => {
+                        return emp.name.toLowerCase().includes(keyword) ||
+                               emp.empNo.toLowerCase().includes(keyword) ||
+                               emp.dept.toLowerCase().includes(keyword);
+                    });
+                    
+                    if (results.length === 0) {
+                        searchList.innerHTML = '<div class="search-empty">未找到匹配员工，请输入更多关键词</div>';
+                    } else {
+                        searchList.innerHTML = results.slice(0, 10).map(emp => `
+                            <div class="search-item" data-id="${emp.id}" data-name="${emp.name}" data-dept="${emp.dept}">
+                                <span class="name">${emp.name}</span>
+                                <span class="dept">${emp.dept}</span>
+                                <span class="emp-no">${emp.empNo}</span>
+                            </div>
+                        `).join('');
+                    }
+                    
+                    searchList.classList.add('show');
+                }, 300);
+            });
+            
+            // 选择员工
+            searchList.addEventListener('click', function(e) {
+                const item = e.target.closest('.search-item');
+                if (!item) return;
+                
+                const id = item.dataset.id;
+                const name = item.dataset.name;
+                const dept = item.dataset.dept;
+                
+                visiteeId.value = id;
+                selectedName.textContent = `${name}（${dept}）`;
+                selectedTag.classList.add('show');
+                visiteeSearch.value = '';
+                visiteeSearch.style.display = 'none';
+                searchList.classList.remove('show');
+                
+                // 清除错误状态
+                const formGroup = visiteeId.closest('.form-group');
+                if (formGroup) formGroup.classList.remove('has-error');
+            });
+            
+            // 清除选择
+            clearVisitee.addEventListener('click', () => {
+                visiteeId.value = '';
+                selectedTag.classList.remove('show');
+                visiteeSearch.style.display = 'block';
+                visiteeSearch.focus();
+            });
+            
+            // 点击外部关闭搜索列表
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.search-wrapper')) {
+                    searchList.classList.remove('show');
+                }
+            });
+            
+            // ========== 表单提交 ==========
+            
+            const form = document.getElementById('appointmentForm');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // 验证表单
+                if (!validateForm()) {
+                    showToast('请检查表单填写是否正确', 'error');
+                    return;
+                }
+                
+                // 收集表单数据
+                const formData = new FormData(form);
+                const data = {
+                    visitorName: formData.get('visitorName'),
+                    visitorPhone: formData.get('visitorPhone'),
+                    visitorIdCard: formData.get('visitorIdCard'),
+                    visitorPhoto: formData.get('visitorPhoto'),
+                    visitPurpose: formData.get('visitPurpose'),
+                    visitPurposeDesc: formData.get('visitPurposeDesc') || '',
+                    visitDate: formData.get('visitDate'),
+                    visitTimeSlot: formData.get('visitTimeSlot'),
+                    visiteeId: formData.get('visiteeId'),
+                    visiteeName: selectedName.textContent
+                };
+                
+                console.log('提交的数据：', data);
+                
+                // 显示加载状态
+                showLoading(true);
+                submitBtn.disabled = true;
+                submitBtn.textContent = '提交中...';
+                
+                // 模拟API调用（2秒延迟）
+                setTimeout(() => {
+                    // 生成预约单号
+                    const appointmentNumber = generateAppointmentNumber();
+                    
+                    // 保存到localStorage
+                    const appointment = {
+                        ...data,
+                        appointmentNumber,
+                        status: '待审批',
+                        createTime: new Date().toISOString()
+                    };
+                    
+                    const appointments = JSON.parse(localStorage.getItem('appointments') || '[]');
+                    appointments.push(appointment);
+                    localStorage.setItem('appointments', JSON.stringify(appointments));
+                    localStorage.setItem('latestAppointment', JSON.stringify(appointment));
+                    
+                    // 隐藏加载状态
+                    showLoading(false);
+                    
+                    // 显示成功提示
+                    showToast('提交成功');
+                    
+                    // 1秒后跳转到成功页
+                    setTimeout(() => {
+                        window.location.href = `P2-预约提交成功页.html?id=${appointmentNumber}`;
+                    }, 1000);
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>
