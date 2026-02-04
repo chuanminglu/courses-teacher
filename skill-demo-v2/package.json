@@ -1,0 +1,16 @@
+{
+  "name": "swag-labs-e2e-demo-v2",
+  "version": "1.0.0",
+  "description": "Swag Labs E2E测试演示 - Chrome DevTools + Playwright Skill",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "typescript": "^5.3.0"
+  }
+}
