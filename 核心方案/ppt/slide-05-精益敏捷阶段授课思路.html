@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chapter 05 精益敏捷 · AI赋能授课思路</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Noto Sans SC', 'Inter', sans-serif;
+      background: #0f1117;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .slide {
+      width: 1280px;
+      height: 720px;
+      overflow: hidden;
+      position: relative;
+      background: linear-gradient(150deg, #f0fdf4 0%, #dcfce7 45%, #fefce8 100%);
+    }
+
+    /* ── 背景装饰 ── */
+    .bg-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(5,150,105,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(5,150,105,0.04) 1px, transparent 1px);
+      background-size: 44px 44px;
+    }
+    .bg-orb-a {
+      position: absolute;
+      width: 500px; height: 500px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(5,150,105,0.10) 0%, transparent 65%);
+      top: -160px; right: -100px;
+      animation: orbFloat 9s ease-in-out infinite;
+    }
+    .bg-orb-b {
+      position: absolute;
+      width: 300px; height: 300px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(251,146,60,0.10) 0%, transparent 65%);
+      bottom: -80px; left: 380px;
+      animation: orbFloat 12s ease-in-out infinite reverse;
+    }
+    @keyframes orbFloat {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-16px) scale(1.03); }
+    }
+
+    /* ── 左侧章节标识栏 ── */
+    .chapter-rail {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 8px;
+      background: linear-gradient(180deg, #059669 0%, #10b981 50%, #f97316 100%);
+    }
+
+    /* ── 顶部标题 ── */
+    .header {
+      position: relative; z-index: 10;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 28px 52px 0 52px;
+    }
+    .chapter-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .chapter-num {
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      padding: 4px 12px;
+      border-radius: 6px;
+    }
+    .chapter-subtitle {
+      font-size: 12px;
+      color: #9ca3af;
+      font-weight: 400;
+      letter-spacing: 1px;
+    }
+    .header-title {
+      font-size: 30px;
+      font-weight: 900;
+      color: #064e3b;
+      letter-spacing: -0.3px;
+    }
+    .header-title span { color: #059669; }
+    .header-right {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding-bottom: 6px;
+    }
+    .phase-pill {
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 5px 13px;
+      border-radius: 20px;
+      letter-spacing: 0.3px;
+    }
+
+    /* 分隔线 */
+    .divider {
+      position: relative; z-index: 10;
+      margin: 14px 52px 0;
+      height: 1.5px;
+      background: linear-gradient(90deg, #059669 0%, #6ee7b7 50%, transparent 100%);
+    }
+
+    /* ── 主内容四格布局 ── */
+    .main-grid {
+      position: relative; z-index: 10;
+      display: grid;
+      grid-template-columns: 306px 1fr 240px;
+      grid-template-rows: 1fr 1fr;
+      gap: 12px;
+      padding: 16px 52px 0;
+      height: 530px;
+    }
+
+    /* 通用卡片 */
+    .panel {
+      border-radius: 16px;
+      padding: 18px 18px 16px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.88);
+      box-shadow: 0 3px 16px rgba(5,150,105,0.07), 0 1px 3px rgba(0,0,0,0.04),
+        inset 0 1px 0 rgba(255,255,255,0.95);
+      background: rgba(255,255,255,0.72);
+      animation: panelIn 0.5s ease both;
+    }
+    @keyframes panelIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .panel:nth-child(1) { animation-delay: 0.05s; }
+    .panel:nth-child(2) { animation-delay: 0.12s; }
+    .panel:nth-child(3) { animation-delay: 0.20s; }
+    .panel:nth-child(4) { animation-delay: 0.28s; }
+
+    .panel-left    { grid-column: 1; grid-row: 1 / 3; }
+    .panel-mid-top { grid-column: 2; grid-row: 1; }
+    .panel-mid-bot { grid-column: 2; grid-row: 2; }
+    .panel-right   { grid-column: 3; grid-row: 1 / 3; }
+
+    /* 面板标题行 */
+    .panel-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .panel-icon {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .panel-label {
+      font-size: 12.5px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .panel-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #064e3b;
+    }
+
+    /* ① 知识体系面板 */
+    .p1-icon  { background: #d1fae5; }
+    .p1-label { color: #065f46; }
+    .p1-border{ border-top: 3px solid #059669; }
+
+    .knowledge-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 7px;
+    }
+    .k-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #059669;
+      flex-shrink: 0;
+      margin-top: 6px;
+    }
+    .k-text {
+      font-size: 12px;
+      color: #374151;
+      line-height: 1.5;
+    }
+    .k-text strong { color: #064e3b; font-weight: 700; }
+
+    /* ② AI全景地图面板 */
+    .p2-icon  { background: #fef3c7; }
+    .p2-label { color: #d97706; }
+    .p2-border{ border-top: 3px solid #f97316; }
+
+    /* ③ 演练面板 */
+    .p3-icon  { background: #ede9fe; }
+    .p3-label { color: #5b21b6; }
+    .p3-border{ border-top: 3px solid #7c3aed; }
+
+    .drill-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 7px;
+    }
+    .ds-num {
+      width: 20px; height: 20px;
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .ds-text {
+      font-size: 12px;
+      color: #374151;
+      line-height: 1.5;
+    }
+    .ds-text strong { color: #064e3b; font-weight: 700; }
+
+    /* ⑤ 反模式面板 */
+    .p4-border { border-top: 3px solid #ef4444; }
+
+    .anti-item {
+      border-radius: 10px;
+      padding: 8px 12px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .anti-bad {
+      background: rgba(254,226,226,0.7);
+      color: #7f1d1d;
+      border-left: 3px solid #ef4444;
+    }
+    .anti-good {
+      background: rgba(209,250,229,0.7);
+      color: #064e3b;
+      border-left: 3px solid #10b981;
+    }
+    .anti-icon { font-size: 13px; margin-right: 4px; }
+
+    .flip-label {
+      font-size: 11px;
+      color: #f59e0b;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .flip-text {
+      font-size: 11.5px;
+      color: #374151;
+      line-height: 1.55;
+    }
+    .flip-text strong { color: #92400e; }
+
+    /* 右下角标注 */
+    .corner-label {
+      position: absolute;
+      bottom: 16px; right: 52px;
+      z-index: 10;
+      font-size: 11px;
+      color: #d1d5db;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+<div class="slide">
+
+  <div class="bg-grid"></div>
+  <div class="bg-orb-a"></div>
+  <div class="bg-orb-b"></div>
+  <div class="chapter-rail"></div>
+
+  <!-- SVG 装饰 -->
+  <svg style="position:absolute;top:0;right:0;width:360px;height:260px;opacity:0.13;z-index:1" viewBox="0 0 360 260">
+    <defs>
+      <radialGradient id="rg5" cx="65%" cy="35%" r="55%">
+        <stop offset="0%" stop-color="#6ee7b7"/>
+        <stop offset="100%" stop-color="transparent"/>
+      </radialGradient>
+    </defs>
+    <ellipse cx="260" cy="90" rx="200" ry="160" fill="url(#rg5)"/>
+  </svg>
+
+  <!-- 顶部标题 -->
+  <div class="header">
+    <div>
+      <div class="chapter-badge">
+        <span class="chapter-num">CHAPTER  05</span>
+        <span class="chapter-subtitle">敏捷实践层</span>
+      </div>
+      <div class="header-title">精益敏捷软件开发 &nbsp;<span>AI 赋能授课思路</span></div>
+    </div>
+    <div class="header-right">
+      <span class="phase-pill" style="background:#d1fae5;color:#065f46">① 知识体系</span>
+      <span class="phase-pill" style="background:#fef3c7;color:#d97706">② AI全景图</span>
+      <span class="phase-pill" style="background:#ede9fe;color:#5b21b6">③ 演练要点</span>
+      <span class="phase-pill" style="background:#fef3c7;color:#92400e">④ 翻转课堂</span>
+      <span class="phase-pill" style="background:#fee2e2;color:#991b1b">⑤ 反模式</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 主四格 -->
+  <div class="main-grid">
+
+    <!-- ① 核心知识体系 (左列, 跨两行) -->
+    <div class="panel panel-left p1-border">
+      <div class="panel-head">
+        <div class="panel-icon p1-icon">🌱</div>
+        <div>
+          <div class="panel-label p1-label">① Core Knowledge</div>
+          <div class="panel-name">核心知识体系与最佳实践</div>
+        </div>
+      </div>
+
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>传统 vs 精益 vs 敏捷三角对比：</strong>瀑布（计划驱动·需求冻结·晚期交付）→ 精益（消除浪费·价值流·快速流动）→ 敏捷（迭代·响应变化·持续交付）</div>
+      </div>
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>精益软件开发7大原则（Poppendieck）：</strong>消除浪费 / 放大学习 / 尽晚决策 / 尽快交付 / 授权团队 / 内建质量 / 全局优化；软件开发7大浪费识别</div>
+      </div>
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>敏捷宣言与12原则精要：</strong>4价值观（个体>流程·软件>文档·合作>合同·响应>计划）+ 敏捷方法家族：Scrum / Kanban / XP / SAFe</div>
+      </div>
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>Scrum框架精讲（3-5-3-3）：</strong><span style="color:#059669;font-weight:700">3角色</span>（PO/SM/Dev）· <span style="color:#f97316;font-weight:700">3支柱</span>（透明/检视/适应）· <span style="color:#7c3aed;font-weight:700">5事件</span>（Sprint+4会议）· <span style="color:#0284c7;font-weight:700">3工件</span>（PBL/SBL/Increment）</div>
+      </div>
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>用户故事与估算实践：</strong>INVEST原则 / Given-When-Then验收条件 / 故事点+计划扑克估算 / DoD（完成定义）制定</div>
+      </div>
+
+      <!-- 翻转课堂说明 -->
+      <div style="margin-top:10px;padding-top:10px;border-top:1px dashed #bbf7d0">
+        <div class="flip-label">④ 翻转课堂 · 学员讲解与检验</div>
+        <div class="flip-text" style="margin-bottom:7px">演练完成后，每组学员<strong>自行上台讲解</strong>：</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <div style="font-size:11.5px;color:#374151;display:flex;align-items:flex-start;gap:6px">
+            <span style="color:#f59e0b;font-weight:900;flex-shrink:0">›</span>
+            <span>PBL是否具备<strong style="color:#92400e">INVEST特征，优先级是否合理？</strong></span>
+          </div>
+          <div style="font-size:11.5px;color:#374151;display:flex;align-items:flex-start;gap:6px">
+            <span style="color:#f59e0b;font-weight:900;flex-shrink:0">›</span>
+            <span>Sprint目标是否<strong style="color:#92400e">聚焦且可验收（DoD清晰）？</strong></span>
+          </div>
+          <div style="font-size:11.5px;color:#374151;display:flex;align-items:flex-start;gap:6px">
+            <span style="color:#f59e0b;font-weight:900;flex-shrink:0">›</span>
+            <span>AI编程计划能否<strong style="color:#92400e">直接驱动Copilot落地执行？</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ② AI赋能全景地图 (中间上) -->
+    <div class="panel panel-mid-top p2-border">
+      <div class="panel-head">
+        <div class="panel-icon p2-icon">🗺️</div>
+        <div>
+          <div class="panel-label p2-label">② AI Panorama · 精益 + Scrum + 角色 + 工具链</div>
+          <div class="panel-name">AI 赋能精益敏捷全景地图</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:2px">
+
+        <!-- 精益思想AI实践 -->
+        <div style="background:rgba(5,150,105,0.07);border-radius:10px;padding:10px 8px">
+          <div style="font-size:10px;font-weight:800;color:#065f46;letter-spacing:0.8px;margin-bottom:7px">精益思想AI实践</div>
+          <div style="font-size:11px;color:#064e3b;font-weight:700;margin-bottom:2px">七大浪费AI识别</div>
+          <div style="font-size:10px;color:#6b7280;line-height:1.4;margin-bottom:5px">等待/过度加工/返工 等浪费智能检测与根因分析</div>
+          <div style="font-size:11px;color:#064e3b;font-weight:700;margin-bottom:2px">价值流AI优化</div>
+          <div style="font-size:10px;color:#6b7280;line-height:1.4">瓶颈自动检测 / 看板WIP智能推荐 / 周期时间预测</div>
+        </div>
+
+        <!-- 敏捷价值观AI放大 -->
+        <div style="background:rgba(249,115,22,0.07);border-radius:10px;padding:10px 8px">
+          <div style="font-size:10px;font-weight:800;color:#c2410c;letter-spacing:0.8px;margin-bottom:7px">敏捷价值观AI放大</div>
+          <div style="font-size:11px;color:#064e3b;font-weight:700;margin-bottom:2px">协作智能增强</div>
+          <div style="font-size:10px;color:#6b7280;line-height:1.4;margin-bottom:5px">AI会议助手·多语言翻译·团队健康度监控</div>
+          <div style="font-size:11px;color:#064e3b;font-weight:700;margin-bottom:2px">活文档自动生成</div>
+          <div style="font-size:10px;color:#6b7280;line-height:1.4">代码注释同步·需求NLP分析·变更影响预测</div>
+        </div>
+
+        <!-- Scrum三支柱AI化 -->
+        <div style="background:rgba(124,58,237,0.07);border-radius:10px;padding:10px 8px">
+          <div style="font-size:10px;font-weight:800;color:#5b21b6;letter-spacing:0.8px;margin-bottom:7px">Scrum三支柱AI化</div>
+          <div style="font-size:11px;color:#064e3b;font-weight:700;margin-bottom:2px">透明(Transparency)</div>
+          <div style="font-size:10px;color:#6b7280;line-height:1.4;margin-bottom:5px">实时进度·智能仪表板·状态自动更新</div>
+          <div style="font-size:11px;color:#064e3b;font-weight:700;margin-bottom:2px">检视 + 适应</div>
+          <div style="font-size:10px;color:#6b7280;line-height:1.4">模式识别预警 / 智能Sprint规划 / 策略推荐</div>
+        </div>
+
+        <!-- 三大角色AI赋能 -->
+        <div style="background:rgba(14,165,233,0.07);border-radius:10px;padding:10px 8px">
+          <div style="font-size:10px;font-weight:800;color:#0369a1;letter-spacing:0.8px;margin-bottom:7px">三大角色AI赋能</div>
+          <div style="font-size:11px;color:#064e3b;font-weight:700;margin-bottom:2px">PO 智能决策</div>
+          <div style="font-size:10px;color:#6b7280;line-height:1.4;margin-bottom:5px">市场趋势分析·优先级算法·价值评估模型</div>
+          <div style="font-size:11px;color:#064e3b;font-weight:700;margin-bottom:2px">SM + Dev 效能</div>
+          <div style="font-size:10px;color:#6b7280;line-height:1.4">团队健康AI·障碍识别 / Copilot代码质量提升</div>
+        </div>
+
+        <!-- 核心AI工具链 -->
+        <div style="background:rgba(245,158,11,0.07);border-radius:10px;padding:10px 8px">
+          <div style="font-size:10px;font-weight:800;color:#b45309;letter-spacing:0.8px;margin-bottom:7px">核心AI工具链</div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="font-size:10px;background:rgba(5,150,105,0.12);border-radius:4px;padding:3px 6px;color:#065f46;font-weight:600">DeepSeek / GPT-4o</div>
+            <div style="font-size:10px;background:rgba(124,58,237,0.10);border-radius:4px;padding:3px 6px;color:#5b21b6;font-weight:600">GitHub Copilot</div>
+            <div style="font-size:10px;background:rgba(14,165,233,0.10);border-radius:4px;padding:3px 6px;color:#0369a1;font-weight:600">Jira Intelligence</div>
+            <div style="font-size:10px;background:rgba(249,115,22,0.10);border-radius:4px;padding:3px 6px;color:#c2410c;font-weight:600">Sprint 分析 AI</div>
+            <div style="font-size:10px;background:rgba(245,158,11,0.12);border-radius:4px;padding:3px 6px;color:#b45309;font-weight:600">情感分析 / NLP 工具</div>
+          </div>
+        </div>
+
+      </div>
+      <div style="margin-top:6px;font-size:10px;color:#94a3b8;text-align:right;letter-spacing:0.5px">精益思想 → 敏捷价值观 → Scrum三支柱 → 三大角色赋能 → AI工具链落地</div>
+    </div>
+
+    <!-- ③ 演练知识要点 (中间下) -->
+    <div class="panel panel-mid-bot p3-border">
+      <div class="panel-head">
+        <div class="panel-icon p3-icon">⚡</div>
+        <div>
+          <div class="panel-name" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+            <span class="panel-label p3-label" style="margin-right:4px">③ Practice Flow</span>
+            <span style="font-size:11px;font-weight:700;color:#059669;background:#d1fae5;padding:2px 9px;border-radius:4px">PBL梳理</span>
+            <span style="font-size:10px;color:#9ca3af">→</span>
+            <span style="font-size:11px;font-weight:700;color:#f97316;background:#fef3c7;padding:2px 9px;border-radius:4px">Sprint规划</span>
+            <span style="font-size:10px;color:#9ca3af">→</span>
+            <span style="font-size:11px;font-weight:700;color:#7c3aed;background:#ede9fe;padding:2px 9px;border-radius:4px">任务拆解</span>
+            <span style="font-size:10px;color:#9ca3af">→</span>
+            <span style="font-size:11px;font-weight:700;color:#0284c7;background:#e0f2fe;padding:2px 9px;border-radius:4px">AI编程计划</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="drill-step">
+          <div class="ds-num" style="background:linear-gradient(135deg,#059669,#10b981)">1</div>
+          <div class="ds-text"><strong>Product Backlog管理与梳理：</strong>AI辅助Epic→Feature→Story三层拆解；MoSCoW法+WSJF算法智能优先级排序；INVEST原则合规检查</div>
+        </div>
+        <div class="drill-step">
+          <div class="ds-num" style="background:linear-gradient(135deg,#f97316,#fb923c)">2</div>
+          <div class="ds-text"><strong>Sprint迭代规划：</strong>AI生成Sprint目标（清晰·可验收）；智能团队容量计算；DoD验收标准自动生成；Sprint Backlog构建</div>
+        </div>
+        <div class="drill-step">
+          <div class="ds-num" style="background:linear-gradient(135deg,#7c3aed,#8b5cf6)">3</div>
+          <div class="ds-text"><strong>任务拆解与估算：</strong>Story→Task拆解（≤8h颗粒度）；AI辅助计划扑克故事点估算；依赖关系识别；燃尽图基线自动生成</div>
+        </div>
+        <div class="drill-step">
+          <div class="ds-num" style="background:linear-gradient(135deg,#0284c7,#0ea5e9)">4</div>
+          <div class="ds-text"><strong>AI编程执行计划：</strong>SDD+TDD上下文管理（Context Engineering）；Copilot任务提示词设计；代码-测试-文档一键生成流水线</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑤ 反模式警示 (右列, 跨两行) -->
+    <div class="panel panel-right p4-border">
+      <div class="panel-head">
+        <div class="panel-icon" style="background:#fee2e2">⚠️</div>
+        <div>
+          <div class="panel-label" style="color:#991b1b">⑤ Anti-Patterns</div>
+          <div class="panel-name">反模式警示</div>
+        </div>
+      </div>
+
+      <div class="anti-item anti-bad">
+        <span class="anti-icon">❌</span>
+        <strong>形式化敏捷：</strong><br/>
+        站会变成汇报会<br/>Sprint = 小瀑布式计划
+      </div>
+      <div class="anti-item anti-bad">
+        <span class="anti-icon">❌</span>
+        <strong>AI生成PBL未验证：</strong><br/>
+        跳过PO审核直接进Sprint<br/>导致方向偏差与返工
+      </div>
+      <div class="anti-item anti-bad">
+        <span class="anti-icon">❌</span>
+        <strong>精益走形式：</strong><br/>
+        七大浪费只贴标签<br/>没有根因分析与改进闭环
+      </div>
+      <div class="anti-item anti-good">
+        <span class="anti-icon">✅</span>
+        AI是敏捷<strong>加速器</strong>，<br/>不是替代团队思考<br/>与协作的工具
+      </div>
+
+      <!-- KEY INSIGHT -->
+      <div style="margin-top:6px;padding-top:8px;border-top:1px dashed #fca5a5;">
+        <div style="font-size:11px;color:#9ca3af;margin-bottom:6px;font-weight:600;letter-spacing:0.5px">KEY INSIGHT</div>
+        <div style="font-size:11.5px;color:#374151;line-height:1.65;background:rgba(209,250,229,0.6);padding:8px 10px;border-radius:8px;border-left:3px solid #10b981">
+          精益<strong style="color:#065f46">消浪费</strong>，敏捷<strong style="color:#065f46">响变化</strong>；<br/>
+          AI放大团队智慧，<br/>
+          <strong style="color:#065f46">人决定方向与价值</strong>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="corner-label">AI赋能研发运维全流程 · 授课思路</div>
+
+</div>
+</body>
+</html>

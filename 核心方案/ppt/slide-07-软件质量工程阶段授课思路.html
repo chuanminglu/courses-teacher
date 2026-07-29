@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chapter 07 AI赋能软件质量工程 · 授课思路</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Noto Sans SC', 'Inter', sans-serif;
+      background: #0f1117;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .slide {
+      width: 1280px;
+      height: 720px;
+      overflow: hidden;
+      position: relative;
+      background: linear-gradient(150deg, #f0fdfa 0%, #ccfbf1 45%, #ecfdf5 100%);
+    }
+
+    /* ── 背景装饰 ── */
+    .bg-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(13,148,136,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(13,148,136,0.04) 1px, transparent 1px);
+      background-size: 44px 44px;
+    }
+    .bg-orb-a {
+      position: absolute;
+      width: 500px; height: 500px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(13,148,136,0.10) 0%, transparent 65%);
+      top: -160px; right: -100px;
+      animation: orbFloat 9s ease-in-out infinite;
+    }
+    .bg-orb-b {
+      position: absolute;
+      width: 320px; height: 320px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(234,88,12,0.08) 0%, transparent 65%);
+      bottom: -80px; left: 360px;
+      animation: orbFloat 12s ease-in-out infinite reverse;
+    }
+    @keyframes orbFloat {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50%       { transform: translateY(-16px) scale(1.03); }
+    }
+
+    /* ── 左侧章节标识栏 ── */
+    .chapter-rail {
+      position: absolute;
+      left: 0; top: 0; bottom: 0; width: 8px;
+      background: linear-gradient(180deg, #0f766e 0%, #0d9488 45%, #f97316 100%);
+    }
+
+    /* ── 顶部标题 ── */
+    .header {
+      position: relative; z-index: 10;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      padding: 28px 52px 0 52px;
+    }
+    .chapter-badge {
+      display: inline-flex; align-items: center; gap: 8px; margin-bottom: 8px;
+    }
+    .chapter-num {
+      background: linear-gradient(135deg, #0f766e, #0d9488);
+      color: white; font-size: 11px; font-weight: 800;
+      letter-spacing: 1.5px; padding: 4px 12px; border-radius: 6px;
+    }
+    .chapter-subtitle { font-size: 12px; color: #9ca3af; font-weight: 400; letter-spacing: 1px; }
+    .header-title { font-size: 30px; font-weight: 900; color: #134e4a; letter-spacing: -0.3px; }
+    .header-title span { color: #0d9488; }
+    .header-right { display: flex; gap: 10px; align-items: center; padding-bottom: 6px; }
+    .phase-pill { font-size: 11.5px; font-weight: 600; padding: 5px 13px; border-radius: 20px; letter-spacing: 0.3px; }
+
+    /* 分隔线 */
+    .divider {
+      position: relative; z-index: 10;
+      margin: 14px 52px 0; height: 1.5px;
+      background: linear-gradient(90deg, #0d9488 0%, #5eead4 50%, transparent 100%);
+    }
+
+    /* ── 主四格布局 ── */
+    .main-grid {
+      position: relative; z-index: 10;
+      display: grid;
+      grid-template-columns: 306px 1fr 240px;
+      grid-template-rows: 1fr 1fr;
+      gap: 12px;
+      padding: 16px 52px 0;
+      height: 530px;
+    }
+
+    /* 通用卡片 */
+    .panel {
+      border-radius: 16px; padding: 18px 18px 16px;
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.88);
+      box-shadow: 0 3px 16px rgba(13,148,136,0.08), 0 1px 3px rgba(0,0,0,0.04),
+        inset 0 1px 0 rgba(255,255,255,0.95);
+      background: rgba(255,255,255,0.72);
+      animation: panelIn 0.5s ease both;
+    }
+    @keyframes panelIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .panel:nth-child(1) { animation-delay: 0.05s; }
+    .panel:nth-child(2) { animation-delay: 0.12s; }
+    .panel:nth-child(3) { animation-delay: 0.20s; }
+    .panel:nth-child(4) { animation-delay: 0.28s; }
+
+    .panel-left    { grid-column: 1; grid-row: 1 / 3; }
+    .panel-mid-top { grid-column: 2; grid-row: 1; }
+    .panel-mid-bot { grid-column: 2; grid-row: 2; }
+    .panel-right   { grid-column: 3; grid-row: 1 / 3; }
+
+    /* 面板标题行 */
+    .panel-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .panel-icon {
+      width: 28px; height: 28px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+    .panel-label { font-size: 12.5px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }
+    .panel-name  { font-size: 14px; font-weight: 700; color: #134e4a; }
+
+    /* ① 知识体系 */
+    .p1-icon   { background: #ccfbf1; }
+    .p1-label  { color: #0f766e; }
+    .p1-border { border-top: 3px solid #0d9488; }
+
+    .knowledge-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 7px; }
+    .k-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #0d9488; flex-shrink: 0; margin-top: 6px;
+    }
+    .k-text { font-size: 12px; color: #374151; line-height: 1.5; }
+    .k-text strong { color: #134e4a; font-weight: 700; }
+
+    /* ② AI全景图 */
+    .p2-icon   { background: #d1fae5; }
+    .p2-label  { color: #065f46; }
+    .p2-border { border-top: 3px solid #10b981; }
+
+    /* ③ 演练 */
+    .p3-icon   { background: #fef3c7; }
+    .p3-label  { color: #b45309; }
+    .p3-border { border-top: 3px solid #f59e0b; }
+
+    .drill-step { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 7px; }
+    .ds-num {
+      width: 20px; height: 20px; color: white;
+      font-size: 11px; font-weight: 800; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .ds-text { font-size: 12px; color: #374151; line-height: 1.5; }
+    .ds-text strong { color: #134e4a; font-weight: 700; }
+
+    /* ⑤ 反模式 */
+    .p4-border { border-top: 3px solid #ef4444; }
+
+    .anti-item {
+      border-radius: 10px; padding: 8px 12px;
+      margin-bottom: 7px; font-size: 12px; line-height: 1.5;
+    }
+    .anti-bad  { background: rgba(254,226,226,0.7); color: #7f1d1d; border-left: 3px solid #ef4444; }
+    .anti-warn { background: rgba(254,243,199,0.7); color: #78350f; border-left: 3px solid #f59e0b; }
+    .anti-good { background: rgba(204,251,241,0.8); color: #134e4a; border-left: 3px solid #0d9488; }
+    .anti-icon { font-size: 13px; margin-right: 4px; }
+
+    .flip-label {
+      font-size: 11px; color: #f59e0b; font-weight: 700;
+      letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 6px;
+    }
+    .flip-text { font-size: 11.5px; color: #374151; line-height: 1.55; }
+    .flip-text strong { color: #92400e; }
+
+    /* 右下角标注 */
+    .corner-label {
+      position: absolute; bottom: 16px; right: 52px;
+      z-index: 10; font-size: 11px; color: #d1d5db; letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+<div class="slide">
+
+  <div class="bg-grid"></div>
+  <div class="bg-orb-a"></div>
+  <div class="bg-orb-b"></div>
+  <div class="chapter-rail"></div>
+
+  <!-- SVG 装饰 -->
+  <svg style="position:absolute;top:0;right:0;width:360px;height:260px;opacity:0.13;z-index:1" viewBox="0 0 360 260">
+    <defs>
+      <radialGradient id="rg7" cx="65%" cy="35%" r="55%">
+        <stop offset="0%" stop-color="#5eead4"/>
+        <stop offset="100%" stop-color="transparent"/>
+      </radialGradient>
+    </defs>
+    <ellipse cx="260" cy="90" rx="200" ry="160" fill="url(#rg7)"/>
+  </svg>
+
+  <!-- 顶部标题 -->
+  <div class="header">
+    <div>
+      <div class="chapter-badge">
+        <span class="chapter-num">CHAPTER  07</span>
+        <span class="chapter-subtitle">质量保障层</span>
+      </div>
+      <div class="header-title">AI赋能软件质量工程 &nbsp;<span>授课思路</span></div>
+    </div>
+    <div class="header-right">
+      <span class="phase-pill" style="background:#ccfbf1;color:#0f766e">① 知识体系</span>
+      <span class="phase-pill" style="background:#d1fae5;color:#065f46">② AI全景图</span>
+      <span class="phase-pill" style="background:#fef3c7;color:#b45309">③ 演练要点</span>
+      <span class="phase-pill" style="background:#fef9c3;color:#92400e">④ 翻转课堂</span>
+      <span class="phase-pill" style="background:#fee2e2;color:#991b1b">⑤ 反模式</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 主四格 -->
+  <div class="main-grid">
+
+    <!-- ① 核心知识体系 (左列, 跨两行) -->
+    <div class="panel panel-left p1-border">
+      <div class="panel-head">
+        <div class="panel-icon p1-icon">🔬</div>
+        <div>
+          <div class="panel-label p1-label">① Core Knowledge</div>
+          <div class="panel-name">核心知识体系与最佳实践</div>
+        </div>
+      </div>
+
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>通用软件质量工程体系：</strong>ISO 25010八大质量特性（功能性/性能/兼容/可用/可靠/安全/维护/可移植）；质量体系双轮驱动：<span style="color:#0d9488;font-weight:700">质量策略</span>（做什么·测试分层金字塔/左移右移时机）+<span style="color:#f97316;font-weight:700">质量实践</span>（怎么做·Code Review/自动化/门禁）</div>
+      </div>
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>灯塔模型·质量体系5大要素：</strong>五层结构：质量愿景(Vision)→质量策略(Strategy)→质量实践(Practices)→质量人员(People)→基础设施(Infrastructure)；人与工具缺一不可，灯塔之光=业务价值达成</div>
+      </div>
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>质量门禁（Quality Gate）：</strong>代码质量门（SonarQube评分≥A）/ 单元测试覆盖率门（分支覆盖≥80%）/ 安全漏洞门（零Critical/High）/ 性能基线门（P95响应时间＜SLA）；质量门禁=CI/CD第三方节点</div>
+      </div>
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>AI质量工程全景架构（四层）：</strong>战略层(ROI预测·KPI·竞品对标)→管控层(质量计划·风险雷达·根因引擎)→实践层(Dev需求/代码·Test用例/发布门禁)→基础层(AI测试平台·智能CI/CD·私有模型·工具链)</div>
+      </div>
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>Playwright E2E自动化核心：</strong>基于Chromium/Firefox/WebKit；Page Object Model（POM）封装；AI生成Locator+断言；并发测试+Trace Viewer+HTML Report；与CI/CD门禁集成</div>
+      </div>
+
+      <!-- 翻转课堂 -->
+      <div style="margin-top:10px;padding-top:10px;border-top:1px dashed #99f6e4">
+        <div class="flip-label">④ 翻转课堂 · 学员上台讲解</div>
+        <div class="flip-text" style="margin-bottom:7px">演练完成后，每组学员<strong>自行上台展示</strong>：</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <div style="font-size:11.5px;color:#374151;display:flex;align-items:flex-start;gap:6px">
+            <span style="color:#f59e0b;font-weight:900;flex-shrink:0">›</span>
+            <span>质量门禁是否覆盖代码、安全、<strong style="color:#92400e">性能三个核心维度？</strong></span>
+          </div>
+          <div style="font-size:11.5px;color:#374151;display:flex;align-items:flex-start;gap:6px">
+            <span style="color:#f59e0b;font-weight:900;flex-shrink:0">›</span>
+            <span>Playwright脚本是否基于<strong style="color:#92400e">POM模式，断言是否有意义？</strong></span>
+          </div>
+          <div style="font-size:11.5px;color:#374151;display:flex;align-items:flex-start;gap:6px">
+            <span style="color:#f59e0b;font-weight:900;flex-shrink:0">›</span>
+            <span>AI生成测试用例是否经过<strong style="color:#92400e">人工评审，Edge Case是否覆盖？</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ② AI质量工程全景图 (中间上) -->
+    <div class="panel panel-mid-top p2-border">
+      <div class="panel-head">
+        <div class="panel-icon p2-icon">🗺️</div>
+        <div>
+          <div class="panel-label p2-label">② AI Panorama · 战略→管控→实践→基础四层架构</div>
+          <div class="panel-name">AI 赋能软件质量工程全景架构</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:2px">
+
+        <!-- 战略层 -->
+        <div style="background:rgba(234,88,12,0.07);border-radius:10px;padding:9px 7px">
+          <div style="font-size:10px;font-weight:800;color:#c2410c;letter-spacing:0.5px;margin-bottom:4px">战略层</div>
+          <div style="font-size:9.5px;color:#78350f;margin-bottom:5px;font-weight:600">价值驱动 · ROI</div>
+          <div style="font-size:10px;color:#374151;line-height:1.45;display:flex;flex-direction:column;gap:3px">
+            <span style="background:rgba(234,88,12,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#7c2d12">ROI预测</span>
+            <span style="background:rgba(234,88,12,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#7c2d12">竞品对标</span>
+            <span style="background:rgba(234,88,12,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#7c2d12">KPI设定</span>
+            <span style="background:rgba(234,88,12,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#7c2d12">用户洞察</span>
+          </div>
+        </div>
+
+        <!-- 管控层 -->
+        <div style="background:rgba(217,119,6,0.07);border-radius:10px;padding:9px 7px">
+          <div style="font-size:10px;font-weight:800;color:#b45309;letter-spacing:0.5px;margin-bottom:4px">管控层</div>
+          <div style="font-size:9.5px;color:#92400e;margin-bottom:5px;font-weight:600">智能治理 · Risk</div>
+          <div style="font-size:10px;color:#374151;line-height:1.45;display:flex;flex-direction:column;gap:3px">
+            <span style="background:rgba(217,119,6,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#78350f">质量计划生成</span>
+            <span style="background:rgba(217,119,6,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#78350f">风险实时雷达</span>
+            <span style="background:rgba(217,119,6,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#78350f">根因分析引擎</span>
+            <span style="background:rgba(217,119,6,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#78350f">资源智能调度</span>
+          </div>
+        </div>
+
+        <!-- 实践层·Dev -->
+        <div style="background:rgba(13,148,136,0.07);border-radius:10px;padding:9px 7px">
+          <div style="font-size:10px;font-weight:800;color:#0f766e;letter-spacing:0.5px;margin-bottom:4px">实践·Dev</div>
+          <div style="font-size:9.5px;color:#134e4a;margin-bottom:5px;font-weight:600">效能跃升 · Dev/Design</div>
+          <div style="font-size:10px;color:#374151;line-height:1.45;display:flex;flex-direction:column;gap:3px">
+            <span style="background:rgba(13,148,136,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#134e4a">需求冲突检测</span>
+            <span style="background:rgba(13,148,136,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#134e4a">代码自动生成</span>
+            <span style="background:rgba(13,148,136,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#134e4a">设计模式推荐</span>
+            <span style="background:rgba(13,148,136,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#134e4a">技术债识别</span>
+          </div>
+        </div>
+
+        <!-- 实践层·Test -->
+        <div style="background:rgba(5,150,105,0.07);border-radius:10px;padding:9px 7px">
+          <div style="font-size:10px;font-weight:800;color:#065f46;letter-spacing:0.5px;margin-bottom:4px">实践·Test</div>
+          <div style="font-size:9.5px;color:#064e3b;margin-bottom:5px;font-weight:600">效能跃升 · Test/Release</div>
+          <div style="font-size:10px;color:#374151;line-height:1.45;display:flex;flex-direction:column;gap:3px">
+            <span style="background:rgba(5,150,105,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#064e3b">用例自动生成</span>
+            <span style="background:rgba(5,150,105,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#064e3b">精准测试推荐</span>
+            <span style="background:rgba(5,150,105,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#064e3b">发布门禁检查</span>
+            <span style="background:rgba(5,150,105,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#064e3b">回归用例优化</span>
+          </div>
+        </div>
+
+        <!-- 基础层 -->
+        <div style="background:rgba(15,118,110,0.07);border-radius:10px;padding:9px 7px">
+          <div style="font-size:10px;font-weight:800;color:#0f766e;letter-spacing:0.5px;margin-bottom:4px">基础层</div>
+          <div style="font-size:9.5px;color:#134e4a;margin-bottom:5px;font-weight:600">坚实底座 · MaaS</div>
+          <div style="font-size:10px;color:#374151;line-height:1.45;display:flex;flex-direction:column;gap:3px">
+            <span style="background:rgba(15,118,110,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#134e4a">AI测试平台</span>
+            <span style="background:rgba(15,118,110,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#134e4a">智能CI/CD</span>
+            <span style="background:rgba(15,118,110,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#134e4a">私有模型训练</span>
+            <span style="background:rgba(15,118,110,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#134e4a">工具链编排</span>
+          </div>
+        </div>
+
+      </div>
+      <div style="margin-top:7px;font-size:10px;color:#94a3b8;text-align:right;letter-spacing:0.5px">战略指引 → 智能管控 → 开发质量左移 → 测试发布右移 → MaaS基础支撑</div>
+    </div>
+
+    <!-- ③ 演练流程 (中间下) -->
+    <div class="panel panel-mid-bot p3-border">
+      <div class="panel-head">
+        <div class="panel-icon p3-icon">⚡</div>
+        <div>
+          <div class="panel-name" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+            <span class="panel-label p3-label" style="margin-right:4px">③ Practice Flow</span>
+            <span style="font-size:11px;font-weight:700;color:#0f766e;background:#ccfbf1;padding:2px 9px;border-radius:4px">Playwright E2E</span>
+            <span style="font-size:10px;color:#9ca3af">→</span>
+            <span style="font-size:11px;font-weight:700;color:#065f46;background:#d1fae5;padding:2px 9px;border-radius:4px">AI用例生成</span>
+            <span style="font-size:10px;color:#9ca3af">→</span>
+            <span style="font-size:11px;font-weight:700;color:#b45309;background:#fef3c7;padding:2px 9px;border-radius:4px">质量门禁配置</span>
+            <span style="font-size:10px;color:#9ca3af">→</span>
+            <span style="font-size:11px;font-weight:700;color:#b91c1c;background:#fee2e2;padding:2px 9px;border-radius:4px">代码质量审查</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="drill-step">
+          <div class="ds-num" style="background:linear-gradient(135deg,#0f766e,#0d9488)">1</div>
+          <div class="ds-text"><strong>Playwright构建自动化E2E测试：</strong>项目初始化 → Page Object Model（POM）封装页面元素 → AI辅助生成Locator+断言 → 并发执行（3浏览器×N用例）→ HTML Report+Trace Viewer接入CI</div>
+        </div>
+        <div class="drill-step">
+          <div class="ds-num" style="background:linear-gradient(135deg,#065f46,#10b981)">2</div>
+          <div class="ds-text"><strong>AI驱动测试用例生成（721模型）：</strong>DeepSeek/Copilot基于需求文档生成Happy Path(70%) + 边界Edge Case(20%) + 异常Error Case(10%)；人工评审+去重+录入测试管理平台</div>
+        </div>
+        <div class="drill-step">
+          <div class="ds-num" style="background:linear-gradient(135deg,#b45309,#f59e0b)">3</div>
+          <div class="ds-text"><strong>质量门禁实战配置：</strong>SonarQube规则集定制（代码异味/圈复杂度/重复率）→ GitHub Actions质量门步骤→ 覆盖率报告(JaCoCo/Istanbul) → 门禁不通过则阻断PR合并</div>
+        </div>
+        <div class="drill-step">
+          <div class="ds-num" style="background:linear-gradient(135deg,#b91c1c,#ef4444)">4</div>
+          <div class="ds-text"><strong>AI辅助代码质量审查：</strong>技术债务AI量化识别（SQALE模型）→ Copilot Review自动点评高风险代码 → 安全漏洞扫描（OWASP Top10映射）→ 改进建议闭环追踪</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑤ 反模式警示 (右列, 跨两行) -->
+    <div class="panel panel-right p4-border">
+      <div class="panel-head">
+        <div class="panel-icon" style="background:#fee2e2">⚠️</div>
+        <div>
+          <div class="panel-label" style="color:#991b1b">⑤ Anti-Patterns</div>
+          <div class="panel-name">反模式警示</div>
+        </div>
+      </div>
+
+      <!-- 核心理念强调 -->
+      <div class="anti-item anti-good" style="border-left-color:#0d9488">
+        <span class="anti-icon">🔭</span>
+        <strong>灯塔理念：</strong><br/>
+        质量不是测试出来的，<br/>
+        而是<strong>设计与构建进去的</strong>
+      </div>
+
+      <div class="anti-item anti-bad">
+        <span class="anti-icon">❌</span>
+        <strong>测试覆盖率造假：</strong><br/>
+        只写没有断言的测试凑<br/>覆盖率数字，毫无保障
+      </div>
+      <div class="anti-item anti-bad">
+        <span class="anti-icon">❌</span>
+        <strong>AI用例不复审：</strong><br/>
+        AI生成后直接入库，<br/>错误用例掩盖真实缺陷
+      </div>
+      <div class="anti-item anti-warn">
+        <span class="anti-icon">⚠️</span>
+        <strong>质量门禁形同虚设：</strong><br/>
+        设了门禁但允许"例外"<br/>跳过，最终零拦截作用
+      </div>
+      <div class="anti-item anti-warn">
+        <span class="anti-icon">⚠️</span>
+        <strong>只靠E2E兜底：</strong><br/>
+        缺单元/集成测试塔底，<br/>E2E慢且定位缺陷困难
+      </div>
+
+      <!-- KEY INSIGHT -->
+      <div style="margin-top:6px;padding-top:8px;border-top:1px dashed #fca5a5;">
+        <div style="font-size:11px;color:#9ca3af;margin-bottom:6px;font-weight:600;letter-spacing:0.5px">KEY INSIGHT</div>
+        <div style="font-size:11.5px;color:#374151;line-height:1.65;background:rgba(204,251,241,0.65);padding:8px 10px;border-radius:8px;border-left:3px solid #0d9488">
+          AI提升测试效率，<br/>
+          <strong style="color:#0f766e">人决定质量标准</strong>；<br/>
+          门禁不是障碍，<br/>
+          是质量的<strong style="color:#0f766e">护城河</strong>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="corner-label">AI赋能研发运维全流程 · 授课思路</div>
+
+</div>
+</body>
+</html>

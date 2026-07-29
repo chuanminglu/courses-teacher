@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>前后端Mock协作模式 · 宽屏版</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Noto Sans SC', 'Inter', sans-serif;
+      background: #0f1117;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* 幻灯片容器 */
+    .slides-container {
+      width: 1280px;
+      position: relative;
+    }
+
+    .slide {
+      width: 1280px;
+      height: 720px;
+      overflow: hidden;
+      position: relative;
+      background: linear-gradient(150deg, #f8faff 0%, #eef2ff 45%, #faf5ff 100%);
+      margin-bottom: 40px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    /* ── 背景装饰 ── */
+    .bg-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(99,102,241,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99,102,241,0.035) 1px, transparent 1px);
+      background-size: 44px 44px;
+    }
+    .bg-orb-a {
+      position: absolute;
+      width: 500px; height: 500px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(99,102,241,0.10) 0%, transparent 65%);
+      top: -160px; right: -100px;
+      animation: orbFloat 9s ease-in-out infinite;
+    }
+    .bg-orb-b {
+      position: absolute;
+      width: 300px; height: 300px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(14,165,233,0.09) 0%, transparent 65%);
+      bottom: -80px; left: 380px;
+      animation: orbFloat 12s ease-in-out infinite reverse;
+    }
+    @keyframes orbFloat {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-16px) scale(1.03); }
+    }
+
+    /* ── 左侧章节标识栏 ── */
+    .chapter-rail {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 8px;
+      background: linear-gradient(180deg, #6366f1 0%, #0ea5e9 50%, #10b981 100%);
+    }
+
+    /* ── 顶部标题 ── */
+    .header {
+      position: relative; z-index: 10;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 28px 52px 0 52px;
+    }
+    .chapter-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .chapter-num {
+      background: linear-gradient(135deg, #6366f1, #818cf8);
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      padding: 4px 12px;
+      border-radius: 6px;
+    }
+    .chapter-subtitle {
+      font-size: 12px;
+      color: #9ca3af;
+      font-weight: 400;
+      letter-spacing: 1px;
+    }
+    .header-title {
+      font-size: 30px;
+      font-weight: 900;
+      color: #1e1b4b;
+      letter-spacing: -0.3px;
+    }
+    .header-title span { color: #6366f1; }
+    .header-right {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding-bottom: 6px;
+    }
+    .phase-pill {
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 5px 13px;
+      border-radius: 20px;
+      letter-spacing: 0.3px;
+    }
+
+    /* 分隔 */
+    .divider {
+      position: relative; z-index: 10;
+      margin: 14px 52px 0;
+      height: 1.5px;
+      background: linear-gradient(90deg, #6366f1 0%, #c7d2fe 50%, transparent 100%);
+    }
+
+    /* ── 通用卡片 ── */
+    .panel {
+      border-radius: 16px;
+      padding: 18px 18px 16px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.88);
+      box-shadow: 0 3px 16px rgba(99,102,241,0.07), 0 1px 3px rgba(0,0,0,0.04),
+        inset 0 1px 0 rgba(255,255,255,0.95);
+      background: rgba(255,255,255,0.70);
+      animation: panelIn 0.5s ease both;
+    }
+    @keyframes panelIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 面板标题行 */
+    .panel-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .panel-icon {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .panel-label {
+      font-size: 12.5px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .panel-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1e1b4b;
+    }
+
+    /* Slide 1 样式 - 三列布局 */
+    .main-grid-3col {
+      position: relative; z-index: 10;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      padding: 16px 52px 0;
+      height: 530px;
+    }
+
+    .stage-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+    }
+
+    .role-section {
+      margin-bottom: 14px;
+    }
+    .role-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #1e1b4b;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .role-icon {
+      font-size: 15px;
+    }
+    .role-list {
+      list-style: none;
+    }
+    .role-list li {
+      font-size: 11.5px;
+      color: #4b5563;
+      line-height: 1.6;
+      margin-bottom: 6px;
+      padding-left: 16px;
+      position: relative;
+    }
+    .role-list li:before {
+      content: "•";
+      position: absolute;
+      left: 4px;
+      color: #6366f1;
+      font-weight: bold;
+    }
+
+    .warning-box {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border-left: 3px solid #f59e0b;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-top: 10px;
+      font-size: 11px;
+      color: #78350f;
+      line-height: 1.5;
+    }
+    .warning-box:before {
+      content: "⚠️ ";
+      font-size: 13px;
+    }
+
+    /* Slide 2 样式 - 对比布局 */
+    .comparison-grid {
+      position: relative; z-index: 10;
+      padding: 16px 52px 0;
+      height: 530px;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 16px;
+    }
+
+    .misconception-panel {
+      display: grid;
+      grid-template-columns: 1fr 60px 1fr;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .comparison-box {
+      padding: 16px;
+      border-radius: 12px;
+      position: relative;
+      min-height: 120px;
+    }
+
+    .wrong-box {
+      background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+      border: 2px solid #ef4444;
+    }
+    .wrong-box:before {
+      content: "❌ 错误理解";
+      position: absolute;
+      top: -12px;
+      left: 16px;
+      background: #ef4444;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .right-box {
+      background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+      border: 2px solid #22c55e;
+    }
+    .right-box:before {
+      content: "✅ 正确理解";
+      position: absolute;
+      top: -12px;
+      left: 16px;
+      background: #22c55e;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .comparison-text {
+      font-size: 13px;
+      line-height: 1.7;
+      color: #1f2937;
+      padding-top: 8px;
+    }
+
+    .comparison-text strong {
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .arrow-icon {
+      font-size: 36px;
+      color: #6366f1;
+      text-align: center;
+    }
+
+    .flow-steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .flow-step {
+      position: relative;
+      padding-top: 20px;
+    }
+
+    .step-number {
+      position: absolute;
+      top: -8px;
+      left: 16px;
+      background: linear-gradient(135deg, #6366f1, #818cf8);
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 800;
+      box-shadow: 0 4px 12px rgba(99,102,241,0.4);
+      z-index: 1;
+    }
+
+    .step-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1e40af;
+      margin-bottom: 8px;
+      padding-top: 4px;
+    }
+
+    .step-content {
+      font-size: 12px;
+      color: #475569;
+      line-height: 1.6;
+    }
+
+    /* Slide 3 样式 - 结论 */
+    .conclusion-container {
+      position: relative; z-index: 10;
+      padding: 40px 52px;
+      height: 530px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .conclusion-card {
+      width: 100%;
+      max-width: 1000px;
+      text-align: center;
+    }
+
+    .conclusion-title {
+      font-size: 38px;
+      font-weight: 900;
+      color: #1e1b4b;
+      margin-bottom: 30px;
+      line-height: 1.3;
+    }
+
+    .conclusion-text {
+      font-size: 20px;
+      color: #4b5563;
+      line-height: 1.8;
+      font-weight: 400;
+    }
+
+    .highlight {
+      color: #6366f1;
+      font-weight: 700;
+    }
+
+    .key-points {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 40px;
+    }
+
+    .key-point-card {
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(99,102,241,0.2);
+      border-radius: 12px;
+      padding: 20px;
+      backdrop-filter: blur(10px);
+    }
+
+    .key-point-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .key-point-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1e1b4b;
+      margin-bottom: 8px;
+    }
+
+    .key-point-desc {
+      font-size: 12px;
+      color: #6b7280;
+      line-height: 1.6;
+    }
+
+    /* 右下角标注 */
+    .corner-label {
+      position: absolute;
+      bottom: 16px; right: 52px;
+      z-index: 10;
+      font-size: 11px;
+      color: #d1d5db;
+      letter-spacing: 1px;
+    }
+
+    /* 打印优化 */
+    @media print {
+      body { background: white; }
+      .slides-container { width: auto; }
+      .slide { 
+        margin-bottom: 0; 
+        page-break-after: always;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="slides-container">
+
+  <!-- ========== Slide 1: 职责分工 ========== -->
+  <div class="slide">
+    <div class="bg-grid"></div>
+    <div class="bg-orb-a"></div>
+    <div class="bg-orb-b"></div>
+    <div class="chapter-rail"></div>
+
+    <!-- 顶部 -->
+    <div class="header">
+      <div>
+        <div class="chapter-badge">
+          <span class="chapter-num">MOCK 协作</span>
+          <span class="chapter-subtitle">前后端分离开发模式</span>
+        </div>
+        <div class="header-title">前后端 <span>Mock 协作模式</span> · 职责分工</div>
+      </div>
+      <div class="header-right">
+        <span class="phase-pill" style="background:#ede9fe;color:#5b21b6">📋 需求评审</span>
+        <span class="phase-pill" style="background:#dbeafe;color:#1e40af">⚙️ 开发阶段</span>
+        <span class="phase-pill" style="background:#d1fae5;color:#065f46">🔗 联调测试</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- 主内容 - 三列 -->
+    <div class="main-grid-3col">
+      
+      <!-- 第一阶段：需求评审 -->
+      <div class="panel" style="border-top: 3px solid #8b5cf6; animation-delay: 0.05s;">
+        <div class="panel-head">
+          <div class="panel-icon" style="background: #ede9fe;">📋</div>
+          <div>
+            <div class="panel-label" style="color: #5b21b6;">STAGE 01</div>
+            <div class="panel-name">需求评审阶段</div>
+          </div>
+        </div>
+
+        <div class="stage-badge" style="background:#ede9fe;color:#5b21b6">接口契约共识</div>
+
+        <div class="role-section">
+          <div class="role-title">
+            <span class="role-icon">👥</span>
+            <span>共同职责</span>
+          </div>
+          <ul class="role-list">
+            <li>评审需求，理解业务场景</li>
+            <li>共同设计接口契约（URL、Method、Request、Response）</li>
+            <li>明确数据结构、字段类型、边界条件</li>
+          </ul>
+        </div>
+
+        <div class="role-section">
+          <div class="role-title">
+            <span class="role-icon">🎨</span>
+            <span>前端职责</span>
+          </div>
+          <ul class="role-list">
+            <li>确认UI交互逻辑与接口的映射关系</li>
+            <li>明确前端状态管理需求</li>
+          </ul>
+        </div>
+
+        <div class="role-section">
+          <div class="role-title">
+            <span class="role-icon">⚙️</span>
+            <span>后端职责</span>
+          </div>
+          <ul class="role-list">
+            <li>评估接口实现难度与性能约束</li>
+            <li>确认数据来源与业务规则</li>
+          </ul>
+        </div>
+
+        <div class="warning-box">
+          <strong>关键产出：</strong>接口契约文档（可用 Swagger/Postman/Apifox）
+        </div>
+      </div>
+
+      <!-- 第二阶段：开发阶段 -->
+      <div class="panel" style="border-top: 3px solid #3b82f6; animation-delay: 0.12s;">
+        <div class="panel-head">
+          <div class="panel-icon" style="background: #dbeafe;">⚙️</div>
+          <div>
+            <div class="panel-label" style="color: #1e40af;">STAGE 02</div>
+            <div class="panel-name">开发阶段</div>
+          </div>
+        </div>
+
+        <div class="stage-badge" style="background:#dbeafe;color:#1e40af">并行开发</div>
+
+        <div class="role-section">
+          <div class="role-title">
+            <span class="role-icon">🎨</span>
+            <span>前端职责</span>
+          </div>
+          <ul class="role-list">
+            <li><strong>创建 Mock 数据</strong>（基于接口契约）</li>
+            <li>搭建本地 Mock 服务器（json-server / Mock.js / MSW）</li>
+            <li>开发 UI 组件与交互逻辑</li>
+            <li>集成 Mock 数据进行功能开发</li>
+            <li>编写前端单元测试</li>
+          </ul>
+        </div>
+
+        <div class="role-section">
+          <div class="role-title">
+            <span class="role-icon">⚙️</span>
+            <span>后端职责</span>
+          </div>
+          <ul class="role-list">
+            <li><strong>实现真实接口</strong>（遵循接口契约）</li>
+            <li>开发业务逻辑与数据持久化</li>
+            <li>编写接口单元测试与集成测试</li>
+            <li>部署到测试环境</li>
+          </ul>
+        </div>
+
+        <div class="warning-box">
+          <strong>核心原则：</strong>前后端基于相同的接口契约，各自独立开发，互不阻塞
+        </div>
+      </div>
+
+      <!-- 第三阶段：联调测试 -->
+      <div class="panel" style="border-top: 3px solid #10b981; animation-delay: 0.20s;">
+        <div class="panel-head">
+          <div class="panel-icon" style="background: #d1fae5;">🔗</div>
+          <div>
+            <div class="panel-label" style="color: #065f46;">STAGE 03</div>
+            <div class="panel-name">联调测试阶段</div>
+          </div>
+        </div>
+
+        <div class="stage-badge" style="background:#d1fae5;color:#065f46">接口对接</div>
+
+        <div class="role-section">
+          <div class="role-title">
+            <span class="role-icon">🎨</span>
+            <span>前端职责</span>
+          </div>
+          <ul class="role-list">
+            <li><strong>切换到真实接口</strong>（修改 API Base URL）</li>
+            <li>验证接口返回数据与 Mock 数据的一致性</li>
+            <li>处理异常场景（错误状态码、网络超时等）</li>
+            <li>进行端到端测试</li>
+          </ul>
+        </div>
+
+        <div class="role-section">
+          <div class="role-title">
+            <span class="role-icon">⚙️</span>
+            <span>后端职责</span>
+          </div>
+          <ul class="role-list">
+            <li>配合前端进行联调</li>
+            <li>修复接口 Bug 与契约偏差</li>
+            <li>优化接口性能</li>
+            <li>确认接口符合契约约定</li>
+          </ul>
+        </div>
+
+        <div class="role-section">
+          <div class="role-title">
+            <span class="role-icon">🐛</span>
+            <span>常见问题处理</span>
+          </div>
+          <ul class="role-list">
+            <li><strong>字段不匹配：</strong>后端修改接口或前端适配</li>
+            <li><strong>数据格式差异：</strong>按契约调整响应格式</li>
+            <li><strong>性能问题：</strong>优化查询逻辑或增加缓存</li>
+          </ul>
+        </div>
+
+        <div class="warning-box">
+          <strong>验收标准：</strong>前端能成功调用真实接口并正常展示数据
+        </div>
+      </div>
+
+    </div>
+
+    <div class="corner-label">Mock 协作模式 · Slide 01</div>
+  </div>
+
+
+  <!-- ========== Slide 2: 错误理解 vs 正确理解 ========== -->
+  <div class="slide">
+    <div class="bg-grid"></div>
+    <div class="bg-orb-a"></div>
+    <div class="bg-orb-b"></div>
+    <div class="chapter-rail"></div>
+
+    <div class="header">
+      <div>
+        <div class="chapter-badge">
+          <span class="chapter-num">MOCK 协作</span>
+          <span class="chapter-subtitle">常见误区与正确理解</span>
+        </div>
+        <div class="header-title">Mock 数据 <span>职责澄清</span></div>
+      </div>
+      <div class="header-right">
+        <span class="phase-pill" style="background:#fee2e2;color:#991b1b">❌ 错误理解</span>
+        <span class="phase-pill" style="background:#dcfce7;color:#065f46">✅ 正确理解</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="comparison-grid">
+      
+      <!-- 对比面板 -->
+      <div class="panel misconception-panel">
+        <div class="comparison-box wrong-box">
+          <div class="comparison-text">
+            <strong>误解：</strong>前端只负责UI，Mock数据应该由<strong>后端提供</strong><br><br>
+            
+            • 认为Mock是后端的测试工具<br>
+            • 前端等待后端提供Mock服务<br>
+            • 前端被动依赖后端进度<br>
+            • <strong>结果：前后端相互等待，开发效率低下</strong>
+          </div>
+        </div>
+
+        <div class="arrow-icon">→</div>
+
+        <div class="comparison-box right-box">
+          <div class="comparison-text">
+            <strong>正解：</strong>前端<strong>主动创建</strong>Mock数据，基于接口契约独立开发<br><br>
+            
+            • Mock是前端的开发工具，不是测试工具<br>
+            • 前端根据接口契约自行Mock<br>
+            • 前后端并行开发，互不阻塞<br>
+            • <strong>结果：提升开发效率，缩短交付周期</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- 流程步骤 -->
+      <div class="panel" style="border-top: 3px solid #6366f1;">
+        <div class="panel-head">
+          <div class="panel-icon" style="background: #e0e7ff;">🔄</div>
+          <div>
+            <div class="panel-label" style="color: #3730a3;">WORKFLOW</div>
+            <div class="panel-name">正确的协作流程</div>
+          </div>
+        </div>
+
+        <div class="flow-steps-grid">
+          
+          <div class="flow-step panel" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #3b82f6;">
+            <div class="step-number">1</div>
+            <div class="step-title">📋 定义接口契约</div>
+            <div class="step-content">
+              前后端共同评审需求，定义API接口文档（Swagger/Apifox），明确数据结构、字段类型、状态码
+            </div>
+          </div>
+
+          <div class="flow-step panel" style="background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border: 2px solid #8b5cf6;">
+            <div class="step-number">2</div>
+            <div class="step-title">⚡ 前端创建Mock</div>
+            <div class="step-content">
+              前端<strong>基于契约</strong>创建Mock数据，搭建本地Mock服务器（json-server/MSW），<strong>独立开发UI</strong>
+            </div>
+          </div>
+
+          <div class="flow-step panel" style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border: 2px solid #10b981;">
+            <div class="step-number">3</div>
+            <div class="step-title">🔗 联调切换真实接口</div>
+            <div class="step-content">
+              后端完成开发后，前端<strong>切换API地址</strong>到真实接口，验证数据一致性，修复偏差问题
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <div class="corner-label">Mock 协作模式 · Slide 02</div>
+  </div>
+
+
+  <!-- ========== Slide 3: 核心结论 ========== -->
+  <div class="slide">
+    <div class="bg-grid"></div>
+    <div class="bg-orb-a"></div>
+    <div class="bg-orb-b"></div>
+    <div class="chapter-rail"></div>
+
+    <div class="header">
+      <div>
+        <div class="chapter-badge">
+          <span class="chapter-num">MOCK 协作</span>
+          <span class="chapter-subtitle">核心要点总结</span>
+        </div>
+        <div class="header-title">前后端 <span>Mock 协作</span> · 核心结论</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="conclusion-container">
+      <div class="conclusion-card panel" style="border-top: 4px solid #6366f1;">
+        <div class="conclusion-title">
+          Mock 数据是<span class="highlight">前端的开发工具</span>，<br>
+          不是后端的测试工具
+        </div>
+        
+        <div class="conclusion-text">
+          前端应当<span class="highlight">主动基于接口契约创建 Mock 数据</span>，<br>
+          实现与后端的<span class="highlight">并行开发</span>，而非被动等待后端完成。
+        </div>
+
+        <div class="key-points">
+          
+          <div class="key-point-card">
+            <div class="key-point-icon">📋</div>
+            <div class="key-point-title">契约先行</div>
+            <div class="key-point-desc">
+              前后端共同定义接口契约，形成开发依据。契约是Mock数据和真实接口的共同标准。
+            </div>
+          </div>
+
+          <div class="key-point-card">
+            <div class="key-point-icon">⚡</div>
+            <div class="key-point-title">并行开发</div>
+            <div class="key-point-desc">
+              前端基于Mock独立开发，后端实现真实接口，双方互不阻塞，大幅提升开发效率。
+            </div>
+          </div>
+
+          <div class="key-point-card">
+            <div class="key-point-icon">🔗</div>
+            <div class="key-point-title">无缝切换</div>
+            <div class="key-point-desc">
+              前端只需切换API地址即可从Mock切换到真实接口，联调成本极低，验证效率高。
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="corner-label">Mock 协作模式 · Slide 03</div>
+  </div>
+
+</div>
+
+<script>
+  // 键盘导航提示
+  console.log('💡 操作提示：');
+  console.log('• 滚动页面查看各个幻灯片');
+  console.log('• Ctrl+P 可打印为 PDF');
+  console.log('');
+  console.log('📊 共3页内容：');
+  console.log('  1️⃣ 职责分工（三个阶段）');
+  console.log('  2️⃣ 错误理解 vs 正确理解');
+  console.log('  3️⃣ 核心结论总结');
+</script>
+
+</body>
+</html>

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>统一教学结构框架 · 五段式教学模型</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Noto Sans SC', 'Inter', sans-serif;
+      background: #0f1117;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .slide {
+      width: 1280px;
+      height: 720px;
+      overflow: hidden;
+      position: relative;
+      background: linear-gradient(135deg, #f8faff 0%, #eef2ff 40%, #e0e7ff 100%);
+    }
+
+    /* ── 背景装饰 ── */
+    .bg-orb-1 {
+      position: absolute;
+      width: 480px; height: 480px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+      top: -120px; right: -80px;
+      animation: floatOrb 8s ease-in-out infinite;
+    }
+    .bg-orb-2 {
+      position: absolute;
+      width: 320px; height: 320px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(14,165,233,0.10) 0%, transparent 70%);
+      bottom: -60px; left: -40px;
+      animation: floatOrb 11s ease-in-out infinite reverse;
+    }
+    .bg-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    @keyframes floatOrb {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-20px) scale(1.04); }
+    }
+
+    /* ── 顶部标题区 ── */
+    .header {
+      position: relative;
+      z-index: 10;
+      padding: 36px 60px 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+    .header-badge {
+      background: linear-gradient(135deg, #6366f1, #818cf8);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      padding: 5px 14px;
+      border-radius: 20px;
+      text-transform: uppercase;
+    }
+    .header-title {
+      font-size: 34px;
+      font-weight: 900;
+      color: #1e1b4b;
+      letter-spacing: -0.5px;
+    }
+    .header-title span {
+      color: #6366f1;
+    }
+    .header-meta {
+      font-size: 13px;
+      color: #6b7280;
+      text-align: right;
+      line-height: 1.7;
+    }
+    .header-meta strong {
+      color: #4f46e5;
+    }
+
+    /* ── 分隔线 ── */
+    .divider {
+      position: relative; z-index: 10;
+      margin: 18px 60px 0;
+      height: 2px;
+      background: linear-gradient(90deg, #6366f1 0%, #c7d2fe 60%, transparent 100%);
+    }
+
+    /* ── 卡片区 ── */
+    .steps-area {
+      position: relative; z-index: 10;
+      display: flex;
+      gap: 14px;
+      padding: 28px 50px 0;
+      align-items: stretch;
+    }
+
+    .step-card {
+      flex: 1;
+      border-radius: 18px;
+      padding: 22px 18px 22px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.85);
+      box-shadow:
+        0 4px 20px rgba(99,102,241,0.08),
+        0 1px 3px rgba(0,0,0,0.04),
+        inset 0 1px 0 rgba(255,255,255,0.9);
+      background: rgba(255,255,255,0.72);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: transform 0.3s ease;
+      animation: cardIn 0.6s ease both;
+    }
+    .step-card:nth-child(1) { animation-delay: 0.05s; }
+    .step-card:nth-child(2) { animation-delay: 0.15s; }
+    .step-card:nth-child(3) { animation-delay: 0.25s; }
+    .step-card:nth-child(4) { animation-delay: 0.35s; }
+    .step-card:nth-child(5) { animation-delay: 0.45s; }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 每张卡片强调色 */
+    .card-1 { border-top: 3px solid #6366f1; }
+    .card-2 { border-top: 3px solid #0ea5e9; }
+    .card-3 { border-top: 3px solid #10b981; }
+    .card-4 { border-top: 3px solid #f59e0b; }
+    .card-5 { border-top: 3px solid #ef4444; }
+
+    .step-num {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 900;
+      color: white;
+      flex-shrink: 0;
+    }
+    .num-1 { background: linear-gradient(135deg, #6366f1, #818cf8); }
+    .num-2 { background: linear-gradient(135deg, #0ea5e9, #38bdf8); }
+    .num-3 { background: linear-gradient(135deg, #10b981, #34d399); }
+    .num-4 { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+    .num-5 { background: linear-gradient(135deg, #ef4444, #f87171); }
+
+    .step-duration {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      padding: 3px 9px;
+      border-radius: 10px;
+      display: inline-block;
+      margin-top: 2px;
+    }
+    .dur-1 { background: #ede9fe; color: #5b21b6; }
+    .dur-2 { background: #e0f2fe; color: #0369a1; }
+    .dur-3 { background: #d1fae5; color: #065f46; }
+    .dur-4 { background: #fef3c7; color: #92400e; }
+    .dur-5 { background: #fee2e2; color: #991b1b; }
+
+    .step-title {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: #1e1b4b;
+      line-height: 1.35;
+    }
+
+    .step-purpose {
+      font-size: 12px;
+      color: #6b7280;
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    .step-tag {
+      font-size: 11px;
+      font-weight: 500;
+      color: #9ca3af;
+      border-top: 1px dashed #e5e7eb;
+      padding-top: 9px;
+      margin-top: auto;
+    }
+
+    /* 连接箭头 */
+    .arrow-wrap {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      padding-bottom: 10px;
+    }
+    .arrow-svg {
+      opacity: 0.35;
+    }
+
+    /* ── 底部说明条 ── */
+    .footer-bar {
+      position: relative; z-index: 10;
+      margin: 20px 50px 0;
+      display: flex;
+      gap: 20px;
+    }
+    .footer-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.75);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 12px;
+      padding: 8px 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .chip-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      animation: pulse-dot 3s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.7; }
+    }
+    .footer-chip span {
+      font-size: 12.5px;
+      color: #374151;
+      font-weight: 500;
+    }
+    .footer-chip strong {
+      color: #1e1b4b;
+      font-weight: 700;
+    }
+
+    /* 右下角装饰文字 */
+    .corner-label {
+      position: absolute;
+      bottom: 22px; right: 52px;
+      z-index: 10;
+      font-size: 11px;
+      color: #d1d5db;
+      letter-spacing: 1px;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+<div class="slide">
+
+  <!-- 背景装饰 -->
+  <div class="bg-grid"></div>
+  <div class="bg-orb-1"></div>
+  <div class="bg-orb-2"></div>
+
+  <!-- SVG 装饰光晕 -->
+  <svg style="position:absolute;top:0;right:0;width:400px;height:300px;opacity:0.18;z-index:1" viewBox="0 0 400 300">
+    <defs>
+      <radialGradient id="g1" cx="70%" cy="30%" r="55%">
+        <stop offset="0%" stop-color="#818cf8"/>
+        <stop offset="100%" stop-color="transparent"/>
+      </radialGradient>
+    </defs>
+    <ellipse cx="300" cy="100" rx="220" ry="180" fill="url(#g1)"/>
+  </svg>
+
+  <!-- 顶部标题 -->
+  <div class="header">
+    <div>
+      <div class="header-badge" style="margin-bottom:10px">Teaching Framework</div>
+      <div class="header-title">统一教学结构框架 &nbsp;<span>五段式教学模型</span></div>
+    </div>
+    <div class="header-meta">
+      分组建议：<strong>3~5人</strong> 一组 · 每组设"技术锚"
+    </div>
+  </div>
+
+  <!-- 分隔线 -->
+  <div class="divider"></div>
+
+  <!-- 五段卡片 -->
+  <div class="steps-area">
+
+    <!-- ① -->
+    <div class="step-card card-1">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="step-num num-1">①</div>
+      </div>
+      <div class="step-title">核心知识体系<br/>与最佳实践</div>
+      <div class="step-purpose">建立认知底座<br/>理解"没有AI时怎么做"<br/>掌握过程域的标准方法论</div>
+      <div class="step-tag">🎓 讲师主讲</div>
+    </div>
+
+    <!-- 箭头 -->
+    <div class="arrow-wrap">
+      <svg class="arrow-svg" width="22" height="22" viewBox="0 0 22 22">
+        <path d="M4 11h12M12 7l4 4-4 4" stroke="#6366f1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+    </div>
+
+    <!-- ② -->
+    <div class="step-card card-2">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="step-num num-2">②</div>
+      </div>
+      <div class="step-title">AI 赋能<br/>全景地图</div>
+      <div class="step-purpose">对照呈现<br/>"AI进来后能做什么"<br/>工具演示 + 场景映射</div>
+      <div class="step-tag">🤖 工具 Demo</div>
+    </div>
+
+    <div class="arrow-wrap">
+      <svg class="arrow-svg" width="22" height="22" viewBox="0 0 22 22">
+        <path d="M4 11h12M12 7l4 4-4 4" stroke="#0ea5e9" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+    </div>
+
+    <!-- ③ -->
+    <div class="step-card card-3">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="step-num num-3">③</div>
+      </div>
+      <div class="step-title">演练<br/>知识要点</div>
+      <div class="step-purpose">明确演练边界<br/>降低操作焦虑<br/>发放任务卡与评分维度</div>
+      <div class="step-tag">📋 任务说明</div>
+    </div>
+
+    <div class="arrow-wrap">
+      <svg class="arrow-svg" width="22" height="22" viewBox="0 0 22 22">
+        <path d="M4 11h12M12 7l4 4-4 4" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+    </div>
+
+    <!-- ④ -->
+    <div class="step-card card-4">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="step-num num-4">④</div>
+      </div>
+      <div class="step-title">翻转课堂<br/>小组演练与汇报</div>
+      <div class="step-purpose">知识内化<br/>同伴学习 · 暴露误解<br/>组间 PK + 成果展示</div>
+      <div class="step-tag">👥 学员主导</div>
+    </div>
+
+    <div class="arrow-wrap">
+      <svg class="arrow-svg" width="22" height="22" viewBox="0 0 22 22">
+        <path d="M4 11h12M12 7l4 4-4 4" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+    </div>
+
+    <!-- ⑤ -->
+    <div class="step-card card-5">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="step-num num-5">⑤</div>
+      </div>
+      <div class="step-title">讲师点评<br/>反模式警示</div>
+      <div class="step-purpose">校正偏差<br/>强化关键认知<br/>揭示AI使用的坑</div>
+      <div class="step-tag">⚠️ 收口总结</div>
+    </div>
+
+  </div>
+
+  <!-- 五维能力矩阵 -->
+  <div style="position:relative;z-index:10;padding:14px 50px 0">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div style="width:4px;height:17px;background:linear-gradient(180deg,#6366f1,#0ea5e9);border-radius:2px;flex-shrink:0"></div>
+      <span style="font-size:12px;font-weight:800;color:#374151;letter-spacing:0.8px">五维 AI 赋能能力矩阵</span>
+      <span style="font-size:10.5px;color:#9ca3af;font-weight:400">— 立体化能力建设目标，贯穿全课程每个过程域</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:9px">
+
+      <!-- 维度1 -->
+      <div style="border-radius:12px;padding:11px 12px;background:rgba(255,255,255,0.72);border:1px solid rgba(99,102,241,0.22);border-top:3px solid #6366f1;backdrop-filter:blur(14px);box-shadow:0 2px 8px rgba(99,102,241,0.07)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:10.5px;font-weight:800;color:#6366f1">维度1</span>
+          <span style="font-size:9px;background:#ede9fe;color:#5b21b6;padding:2px 7px;border-radius:8px;font-weight:600">基础层 · 20%</span>
+        </div>
+        <div style="font-size:11.5px;font-weight:800;color:#1e1b4b;margin-bottom:5px">提示词工程能力</div>
+        <div style="font-size:10px;color:#6b7280;line-height:1.5">写出高质量结构化提示词<br/>RTGO框架 · 减少AI幻觉</div>
+      </div>
+
+      <!-- 维度2 -->
+      <div style="border-radius:12px;padding:11px 12px;background:rgba(255,255,255,0.72);border:1px solid rgba(14,165,233,0.22);border-top:3px solid #0ea5e9;backdrop-filter:blur(14px);box-shadow:0 2px 8px rgba(14,165,233,0.07)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:10.5px;font-weight:800;color:#0ea5e9">维度2</span>
+          <span style="font-size:9px;background:#e0f2fe;color:#0369a1;padding:2px 7px;border-radius:8px;font-weight:600">工程层 · 25%</span>
+        </div>
+        <div style="font-size:11.5px;font-weight:800;color:#1e1b4b;margin-bottom:5px">工具链整合能力</div>
+        <div style="font-size:10px;color:#6b7280;line-height:1.5">多AI工具串联协作<br/>与Jira/GitLab等工具集成</div>
+      </div>
+
+      <!-- 维度3 -->
+      <div style="border-radius:12px;padding:11px 12px;background:rgba(255,255,255,0.72);border:1px solid rgba(16,185,129,0.22);border-top:3px solid #10b981;backdrop-filter:blur(14px);box-shadow:0 2px 8px rgba(16,185,129,0.07)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:10.5px;font-weight:800;color:#10b981">维度3</span>
+          <span style="font-size:9px;background:#d1fae5;color:#065f46;padding:2px 7px;border-radius:8px;font-weight:600">专家层 · 25%</span>
+        </div>
+        <div style="font-size:11.5px;font-weight:800;color:#1e1b4b;margin-bottom:5px">质量把控能力</div>
+        <div style="font-size:10px;color:#6b7280;line-height:1.5">验证AI生成内容质量<br/>识别错误局限 · 优化迭代</div>
+      </div>
+
+      <!-- 维度4 -->
+      <div style="border-radius:12px;padding:11px 12px;background:rgba(255,255,255,0.72);border:1px solid rgba(245,158,11,0.22);border-top:3px solid #f59e0b;backdrop-filter:blur(14px);box-shadow:0 2px 8px rgba(245,158,11,0.07)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:10.5px;font-weight:800;color:#d97706">维度4</span>
+          <span style="font-size:9px;background:#fef3c7;color:#92400e;padding:2px 7px;border-radius:8px;font-weight:600">战略层 · 15%</span>
+        </div>
+        <div style="font-size:11.5px;font-weight:800;color:#1e1b4b;margin-bottom:5px">场景识别能力</div>
+        <div style="font-size:10px;color:#6b7280;line-height:1.5">判断何时该用AI<br/>评估ROI · 制定团队策略</div>
+      </div>
+
+      <!-- 维度5 -->
+      <div style="border-radius:12px;padding:11px 12px;background:rgba(255,255,255,0.72);border:1px solid rgba(239,68,68,0.22);border-top:3px solid #ef4444;backdrop-filter:blur(14px);box-shadow:0 2px 8px rgba(239,68,68,0.07)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:10.5px;font-weight:800;color:#ef4444">维度5</span>
+          <span style="font-size:9px;background:#fee2e2;color:#991b1b;padding:2px 7px;border-radius:8px;font-weight:600">组织层 · 15%</span>
+        </div>
+        <div style="font-size:11.5px;font-weight:800;color:#1e1b4b;margin-bottom:5px">团队协作能力</div>
+        <div style="font-size:10px;color:#6b7280;line-height:1.5">AI时代团队分工重塑<br/>建立规范 · AI驱动评审</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 底部说明条 -->
+  <div class="footer-bar">
+    <div class="footer-chip">
+      <div class="chip-dot" style="background:#6366f1"></div>
+      <span>适用范围：<strong>9个核心过程域章节</strong>统一采用此框架</span>
+    </div>
+    <div class="footer-chip">
+      <div class="chip-dot" style="background:#10b981"></div>
+      <span>学员比例：<strong>60%</strong> 实战演练 · <strong>30%</strong> 理论 · <strong>10%</strong> 展示</span>
+    </div>
+  </div>
+
+  <!-- 右下角标注 -->
+  <div class="corner-label">AI赋能研发运维全流程 · 授课思路 · Slide 01</div>
+
+</div>
+</body>
+</html>

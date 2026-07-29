@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chapter 08 AI赋能CI/CD · 授课思路</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Noto Sans SC', 'Inter', sans-serif;
+      background: #0f1117;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .slide {
+      width: 1280px;
+      height: 720px;
+      overflow: hidden;
+      position: relative;
+      background: linear-gradient(150deg, #eef2ff 0%, #e0e7ff 45%, #ede9fe 100%);
+    }
+
+    /* ── 背景装饰 ── */
+    .bg-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(79,70,229,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(79,70,229,0.04) 1px, transparent 1px);
+      background-size: 44px 44px;
+    }
+    .bg-orb-a {
+      position: absolute;
+      width: 500px; height: 500px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(79,70,229,0.10) 0%, transparent 65%);
+      top: -160px; right: -100px;
+      animation: orbFloat 9s ease-in-out infinite;
+    }
+    .bg-orb-b {
+      position: absolute;
+      width: 320px; height: 320px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(249,115,22,0.08) 0%, transparent 65%);
+      bottom: -80px; left: 360px;
+      animation: orbFloat 12s ease-in-out infinite reverse;
+    }
+    @keyframes orbFloat {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50%       { transform: translateY(-16px) scale(1.03); }
+    }
+
+    /* ── 左侧章节标识栏 ── */
+    .chapter-rail {
+      position: absolute;
+      left: 0; top: 0; bottom: 0; width: 8px;
+      background: linear-gradient(180deg, #3730a3 0%, #4f46e5 45%, #f97316 100%);
+    }
+
+    /* ── 顶部标题 ── */
+    .header {
+      position: relative; z-index: 10;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      padding: 28px 52px 0 52px;
+    }
+    .chapter-badge { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .chapter-num {
+      background: linear-gradient(135deg, #3730a3, #4f46e5);
+      color: white; font-size: 11px; font-weight: 800;
+      letter-spacing: 1.5px; padding: 4px 12px; border-radius: 6px;
+    }
+    .chapter-subtitle { font-size: 12px; color: #9ca3af; font-weight: 400; letter-spacing: 1px; }
+    .header-title { font-size: 30px; font-weight: 900; color: #1e1b4b; letter-spacing: -0.3px; }
+    .header-title span { color: #4f46e5; }
+    .header-right { display: flex; gap: 10px; align-items: center; padding-bottom: 6px; }
+    .phase-pill { font-size: 11.5px; font-weight: 600; padding: 5px 13px; border-radius: 20px; letter-spacing: 0.3px; }
+
+    /* 分隔线 */
+    .divider {
+      position: relative; z-index: 10;
+      margin: 14px 52px 0; height: 1.5px;
+      background: linear-gradient(90deg, #4f46e5 0%, #a5b4fc 50%, transparent 100%);
+    }
+
+    /* ── 主四格布局 ── */
+    .main-grid {
+      position: relative; z-index: 10;
+      display: grid;
+      grid-template-columns: 306px 1fr 240px;
+      grid-template-rows: 1fr 1fr;
+      gap: 12px;
+      padding: 16px 52px 0;
+      height: 530px;
+    }
+
+    /* 通用卡片 */
+    .panel {
+      border-radius: 16px; padding: 18px 18px 16px;
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.88);
+      box-shadow: 0 3px 16px rgba(79,70,229,0.08), 0 1px 3px rgba(0,0,0,0.04),
+        inset 0 1px 0 rgba(255,255,255,0.95);
+      background: rgba(255,255,255,0.72);
+      animation: panelIn 0.5s ease both;
+    }
+    @keyframes panelIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .panel:nth-child(1) { animation-delay: 0.05s; }
+    .panel:nth-child(2) { animation-delay: 0.12s; }
+    .panel:nth-child(3) { animation-delay: 0.20s; }
+    .panel:nth-child(4) { animation-delay: 0.28s; }
+
+    .panel-left    { grid-column: 1; grid-row: 1 / 3; }
+    .panel-mid-top { grid-column: 2; grid-row: 1; }
+    .panel-mid-bot { grid-column: 2; grid-row: 2; }
+    .panel-right   { grid-column: 3; grid-row: 1 / 3; }
+
+    /* 面板标题行 */
+    .panel-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .panel-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+    .panel-label { font-size: 12.5px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }
+    .panel-name  { font-size: 14px; font-weight: 700; color: #1e1b4b; }
+
+    /* ① 知识体系 */
+    .p1-icon   { background: #e0e7ff; }
+    .p1-label  { color: #3730a3; }
+    .p1-border { border-top: 3px solid #4f46e5; }
+
+    .knowledge-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 7px; }
+    .k-dot { width: 6px; height: 6px; border-radius: 50%; background: #4f46e5; flex-shrink: 0; margin-top: 6px; }
+    .k-text { font-size: 12px; color: #374151; line-height: 1.5; }
+    .k-text strong { color: #1e1b4b; font-weight: 700; }
+
+    /* ② AI全景图 */
+    .p2-icon   { background: #fef3c7; }
+    .p2-label  { color: #b45309; }
+    .p2-border { border-top: 3px solid #f59e0b; }
+
+    /* ③ 演练 */
+    .p3-icon   { background: #fee2e2; }
+    .p3-label  { color: #b91c1c; }
+    .p3-border { border-top: 3px solid #ef4444; }
+
+    .drill-step { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 7px; }
+    .ds-num { width: 20px; height: 20px; color: white; font-size: 11px; font-weight: 800; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .ds-text { font-size: 12px; color: #374151; line-height: 1.5; }
+    .ds-text strong { color: #1e1b4b; font-weight: 700; }
+
+    /* ⑤ 反模式 */
+    .p4-border { border-top: 3px solid #ef4444; }
+
+    .anti-item { border-radius: 10px; padding: 8px 12px; margin-bottom: 7px; font-size: 12px; line-height: 1.5; }
+    .anti-bad  { background: rgba(254,226,226,0.7); color: #7f1d1d; border-left: 3px solid #ef4444; }
+    .anti-warn { background: rgba(254,243,199,0.7); color: #78350f; border-left: 3px solid #f59e0b; }
+    .anti-good { background: rgba(224,231,255,0.8); color: #1e1b4b; border-left: 3px solid #4f46e5; }
+    .anti-icon { font-size: 13px; margin-right: 4px; }
+
+    .flip-label { font-size: 11px; color: #f59e0b; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 6px; }
+    .flip-text  { font-size: 11.5px; color: #374151; line-height: 1.55; }
+    .flip-text strong { color: #92400e; }
+
+    .corner-label { position: absolute; bottom: 16px; right: 52px; z-index: 10; font-size: 11px; color: #d1d5db; letter-spacing: 1px; }
+  </style>
+</head>
+<body>
+<div class="slide">
+
+  <div class="bg-grid"></div>
+  <div class="bg-orb-a"></div>
+  <div class="bg-orb-b"></div>
+  <div class="chapter-rail"></div>
+
+  <!-- SVG 装饰 -->
+  <svg style="position:absolute;top:0;right:0;width:360px;height:260px;opacity:0.13;z-index:1" viewBox="0 0 360 260">
+    <defs>
+      <radialGradient id="rg8" cx="65%" cy="35%" r="55%">
+        <stop offset="0%" stop-color="#a5b4fc"/>
+        <stop offset="100%" stop-color="transparent"/>
+      </radialGradient>
+    </defs>
+    <ellipse cx="260" cy="90" rx="200" ry="160" fill="url(#rg8)"/>
+  </svg>
+
+  <!-- 顶部标题 -->
+  <div class="header">
+    <div>
+      <div class="chapter-badge">
+        <span class="chapter-num">CHAPTER  08</span>
+        <span class="chapter-subtitle">持续交付层</span>
+      </div>
+      <div class="header-title">AI赋能 CI/CD &nbsp;<span>授课思路</span></div>
+    </div>
+    <div class="header-right">
+      <span class="phase-pill" style="background:#e0e7ff;color:#3730a3">① 知识体系</span>
+      <span class="phase-pill" style="background:#fef3c7;color:#b45309">② AI全景图</span>
+      <span class="phase-pill" style="background:#fee2e2;color:#b91c1c">③ 演练要点</span>
+      <span class="phase-pill" style="background:#fef9c3;color:#92400e">④ 翻转课堂</span>
+      <span class="phase-pill" style="background:#fee2e2;color:#991b1b">⑤ 反模式</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 主四格 -->
+  <div class="main-grid">
+
+    <!-- ① 核心知识体系 (左列, 跨两行) -->
+    <div class="panel panel-left p1-border">
+      <div class="panel-head">
+        <div class="panel-icon p1-icon">🔁</div>
+        <div>
+          <div class="panel-label p1-label">① Core Knowledge</div>
+          <div class="panel-name">核心知识体系与最佳实践</div>
+        </div>
+      </div>
+
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>DevOps核心概念与CALMS框架：</strong>文化(Culture)·自动化(Automation)·精益(Lean)·度量(Measurement)·共享(Sharing)；DORA四指标：<span style="color:#4f46e5;font-weight:700">部署频率</span>/<span style="color:#f97316;font-weight:700">变更前置时间</span>/变更失败率/MTTR；Pipeline as Code本质</div>
+      </div>
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>构建流水线核心流程：</strong>代码提交→静态分析→编译构建→单元测试→制品归档；目标：快速反馈（&lt;10分钟）；增量构建+并行化+缓存策略；AI赋能：智能依赖分析·构建配置自动生成</div>
+      </div>
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>部署流水线核心流程：</strong>制品拉取→环境配置→金丝雀发布→烟雾测试→全量上线；目标：零停机部署；AI赋能：环境漂移检测·发布策略智能决策·回滚条件自动判定</div>
+      </div>
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>质量门核心概念与传统三大痛点：</strong><span style="color:#ef4444;font-weight:700">盲目性</span>（只看语法不懂语义·业务逻辑漏洞漏网）/ <span style="color:#f97316;font-weight:700">脆弱性</span>（环境稍变流水线挂·35%构建失败是环境问题）/ <span style="color:#6b7280;font-weight:700">维护难</span>（DevOps工程师变YAML工程师·30%时间调配置）</div>
+      </div>
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>AI赋能CI/CD双维度：</strong>维度1·<span style="color:#4f46e5;font-weight:700">基础设施层</span>（让流水线更好用·更稳定·更快速；受益：DevOps+运维）/ 维度2·<span style="color:#f97316;font-weight:700">质量门层</span>（让代码质量更高·风险更可控；受益：开发+测试；解决盲目性）</div>
+      </div>
+
+      <!-- 翻转课堂 -->
+      <div style="margin-top:10px;padding-top:10px;border-top:1px dashed #c7d2fe">
+        <div class="flip-label">④ 翻转课堂 · 学员上台讲解</div>
+        <div class="flip-text" style="margin-bottom:7px">演练完成后，每组学员<strong>自行上台展示</strong>：</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <div style="font-size:11.5px;color:#374151;display:flex;align-items:flex-start;gap:6px">
+            <span style="color:#f59e0b;font-weight:900;flex-shrink:0">›</span>
+            <span>传统质量门与AI质量门<strong style="color:#92400e">差异在哪？False Positive怎么复现？</strong></span>
+          </div>
+          <div style="font-size:11.5px;color:#374151;display:flex;align-items:flex-start;gap:6px">
+            <span style="color:#f59e0b;font-weight:900;flex-shrink:0">›</span>
+            <span>AI生成的GitHub Actions配置<strong style="color:#92400e">你能解释每个step的作用吗？</strong></span>
+          </div>
+          <div style="font-size:11.5px;color:#374151;display:flex;align-items:flex-start;gap:6px">
+            <span style="color:#f59e0b;font-weight:900;flex-shrink:0">›</span>
+            <span>回滚触发条件是否<strong style="color:#92400e">可量化判定，还是依赖人工主观决策？</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ② AI赋能CICD全景图 (中间上) -->
+    <div class="panel panel-mid-top p2-border">
+      <div class="panel-head">
+        <div class="panel-icon p2-icon">🗺️</div>
+        <div>
+          <div class="panel-label p2-label">② AI Panorama · CI/CD 5层架构 × 双维度赋能</div>
+          <div class="panel-name">AI 赋能 CI/CD 全景架构（5层）</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:2px">
+
+        <!-- Layer1 代码层 -->
+        <div style="background:rgba(79,70,229,0.07);border-radius:10px;padding:9px 7px">
+          <div style="font-size:10px;font-weight:800;color:#3730a3;letter-spacing:0.5px;margin-bottom:3px">Layer 1</div>
+          <div style="font-size:9.5px;font-weight:700;color:#4f46e5;margin-bottom:5px">代码层</div>
+          <div style="font-size:10px;color:#374151;line-height:1.45;display:flex;flex-direction:column;gap:3px">
+            <span style="background:rgba(79,70,229,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#1e1b4b">AI代码审查</span>
+            <span style="background:rgba(79,70,229,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#1e1b4b">语义漏洞检测</span>
+            <span style="background:rgba(79,70,229,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#1e1b4b">业务逻辑分析</span>
+            <span style="background:rgba(79,70,229,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#1e1b4b">BLOCKER识别</span>
+          </div>
+        </div>
+
+        <!-- Layer2 构建层 -->
+        <div style="background:rgba(99,102,241,0.07);border-radius:10px;padding:9px 7px">
+          <div style="font-size:10px;font-weight:800;color:#4338ca;letter-spacing:0.5px;margin-bottom:3px">Layer 2</div>
+          <div style="font-size:9.5px;font-weight:700;color:#6366f1;margin-bottom:5px">构建层</div>
+          <div style="font-size:10px;color:#374151;line-height:1.45;display:flex;flex-direction:column;gap:3px">
+            <span style="background:rgba(99,102,241,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#312e81">配置自动生成</span>
+            <span style="background:rgba(99,102,241,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#312e81">智能依赖分析</span>
+            <span style="background:rgba(99,102,241,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#312e81">增量构建优化</span>
+            <span style="background:rgba(99,102,241,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#312e81">构建失败诊断</span>
+          </div>
+        </div>
+
+        <!-- Layer3 测试层 -->
+        <div style="background:rgba(217,119,6,0.07);border-radius:10px;padding:9px 7px">
+          <div style="font-size:10px;font-weight:800;color:#b45309;letter-spacing:0.5px;margin-bottom:3px">Layer 3</div>
+          <div style="font-size:9.5px;font-weight:700;color:#d97706;margin-bottom:5px">测试层</div>
+          <div style="font-size:10px;color:#374151;line-height:1.45;display:flex;flex-direction:column;gap:3px">
+            <span style="background:rgba(217,119,6,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#78350f">用例优先级排序</span>
+            <span style="background:rgba(217,119,6,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#78350f">边界测试生成</span>
+            <span style="background:rgba(217,119,6,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#78350f">精准回归选择</span>
+            <span style="background:rgba(217,119,6,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#78350f">缺陷风险预测</span>
+          </div>
+        </div>
+
+        <!-- Layer4 部署层 -->
+        <div style="background:rgba(249,115,22,0.07);border-radius:10px;padding:9px 7px">
+          <div style="font-size:10px;font-weight:800;color:#c2410c;letter-spacing:0.5px;margin-bottom:3px">Layer 4</div>
+          <div style="font-size:9.5px;font-weight:700;color:#f97316;margin-bottom:5px">部署层</div>
+          <div style="font-size:10px;color:#374151;line-height:1.45;display:flex;flex-direction:column;gap:3px">
+            <span style="background:rgba(249,115,22,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#7c2d12">发布策略决策</span>
+            <span style="background:rgba(249,115,22,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#7c2d12">环境漂移检测</span>
+            <span style="background:rgba(249,115,22,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#7c2d12">配置自动校验</span>
+            <span style="background:rgba(249,115,22,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#7c2d12">回滚自动判定</span>
+          </div>
+        </div>
+
+        <!-- Layer5 运维层 -->
+        <div style="background:rgba(239,68,68,0.07);border-radius:10px;padding:9px 7px">
+          <div style="font-size:10px;font-weight:800;color:#b91c1c;letter-spacing:0.5px;margin-bottom:3px">Layer 5</div>
+          <div style="font-size:9.5px;font-weight:700;color:#ef4444;margin-bottom:5px">运维层</div>
+          <div style="font-size:10px;color:#374151;line-height:1.45;display:flex;flex-direction:column;gap:3px">
+            <span style="background:rgba(239,68,68,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#7f1d1d">AIOps异常检测</span>
+            <span style="background:rgba(239,68,68,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#7f1d1d">故障预测告警</span>
+            <span style="background:rgba(239,68,68,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#7f1d1d">告警噪音降噪</span>
+            <span style="background:rgba(239,68,68,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#7f1d1d">自愈脚本生成</span>
+          </div>
+        </div>
+
+      </div>
+      <!-- 双维度说明行 -->
+      <div style="margin-top:7px;display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div style="font-size:10px;background:rgba(79,70,229,0.08);border-radius:6px;padding:4px 8px;border-left:2px solid #4f46e5;color:#1e1b4b">
+          <strong>维度1·基础设施层</strong>：让流水线更好用·更稳定·更快速｜受益：DevOps+运维团队
+        </div>
+        <div style="font-size:10px;background:rgba(249,115,22,0.08);border-radius:6px;padding:4px 8px;border-left:2px solid #f97316;color:#7c2d12">
+          <strong>维度2·质量门层</strong>：让代码质量更高·风险更可控｜受益：开发+测试团队
+        </div>
+      </div>
+    </div>
+
+    <!-- ③ 演练流程 (中间下) -->
+    <div class="panel panel-mid-bot p3-border">
+      <div class="panel-head">
+        <div class="panel-icon p3-icon">⚡</div>
+        <div>
+          <div class="panel-name" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+            <span class="panel-label p3-label" style="margin-right:4px">③ Practice Flow</span>
+            <span style="font-size:11px;font-weight:700;color:#3730a3;background:#e0e7ff;padding:2px 9px;border-radius:4px">传统质量门</span>
+            <span style="font-size:10px;color:#9ca3af">→</span>
+            <span style="font-size:11px;font-weight:700;color:#b45309;background:#fef3c7;padding:2px 9px;border-radius:4px">AI质量门升级</span>
+            <span style="font-size:10px;color:#9ca3af">→</span>
+            <span style="font-size:11px;font-weight:700;color:#c2410c;background:#ffedd5;padding:2px 9px;border-radius:4px">构建流水线</span>
+            <span style="font-size:10px;color:#9ca3af">→</span>
+            <span style="font-size:11px;font-weight:700;color:#b91c1c;background:#fee2e2;padding:2px 9px;border-radius:4px">部署流水线</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="drill-step">
+          <div class="ds-num" style="background:linear-gradient(135deg,#3730a3,#4f46e5)">1</div>
+          <div class="ds-text"><strong>传统质量门搭建（MUST DO）：</strong>配置GitHub Actions → Pylint+Pytest+SonarQube运行 → 发现False Positive：所有规则通过但<span style="color:#ef4444;font-weight:700">业务逻辑漏洞（负价格）仍流入</span>；暴露盲目性痛点</div>
+        </div>
+        <div class="drill-step">
+          <div class="ds-num" style="background:linear-gradient(135deg,#b45309,#f59e0b)">2</div>
+          <div class="ds-text"><strong>AI质量门升级（OPTIONAL）：</strong>集成Copilot CLI → 执行语义审查识别<span style="color:#ef4444;font-weight:700">BLOCKER级业务漏洞</span> → AI自动补全边界测试（test_discount_exceeds_price）→ 构建成功拦截True Negative</div>
+        </div>
+        <div class="drill-step">
+          <div class="ds-num" style="background:linear-gradient(135deg,#c2410c,#f97316)">3</div>
+          <div class="ds-text"><strong>AI赋能构建流水线：</strong>DeepSeek/Copilot生成GitHub Actions YAML → AI解析依赖树识别风险包 → 并行化构建拆分 → 制品签名·版本溯源；全流程目标&lt;10分钟</div>
+        </div>
+        <div class="drill-step">
+          <div class="ds-num" style="background:linear-gradient(135deg,#b91c1c,#ef4444)">4</div>
+          <div class="ds-text"><strong>AI赋能部署流水线：</strong>AI生成Helm/ArgoCD配置 → 环境漂移检测（Dev/Staging/Prod差异对比）→ 金丝雀发布策略智能决策 → 回滚条件量化判定（错误率&gt;1%自动回滚）</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑤ 反模式警示 (右列, 跨两行) -->
+    <div class="panel panel-right p4-border">
+      <div class="panel-head">
+        <div class="panel-icon" style="background:#fee2e2">⚠️</div>
+        <div>
+          <div class="panel-label" style="color:#991b1b">⑤ Anti-Patterns</div>
+          <div class="panel-name">反模式警示</div>
+        </div>
+      </div>
+
+      <!-- 核心理念强调 -->
+      <div class="anti-item anti-good" style="border-left-color:#4f46e5">
+        <span class="anti-icon">🔁</span>
+        <strong>核心理念：</strong><br/>
+        Pipeline as Code，<br/>
+        流水线即<strong>可审查的文档</strong>
+      </div>
+
+      <div class="anti-item anti-bad">
+        <span class="anti-icon">❌</span>
+        <strong>门禁全绿即上线：</strong><br/>
+        语法/覆盖率全通过，<br/>业务逻辑漏洞照样上线
+      </div>
+      <div class="anti-item anti-bad">
+        <span class="anti-icon">❌</span>
+        <strong>AI配置不求理解：</strong><br/>
+        AI生成YAML直接提交，<br/>出错无从排查无法维护
+      </div>
+      <div class="anti-item anti-warn">
+        <span class="anti-icon">⚠️</span>
+        <strong>流水线臃肿串行：</strong><br/>
+        所有检查串行执行，<br/>单次构建超30分钟无人修
+      </div>
+      <div class="anti-item anti-warn">
+        <span class="anti-icon">⚠️</span>
+        <strong>环境漂移视而不见：</strong><br/>
+        Dev能跑Prod挂，<br/>"在我机器上没问题"
+      </div>
+
+      <!-- KEY INSIGHT -->
+      <div style="margin-top:6px;padding-top:8px;border-top:1px dashed #fca5a5;">
+        <div style="font-size:11px;color:#9ca3af;margin-bottom:6px;font-weight:600;letter-spacing:0.5px">KEY INSIGHT</div>
+        <div style="font-size:11.5px;color:#374151;line-height:1.65;background:rgba(224,231,255,0.65);padding:8px 10px;border-radius:8px;border-left:3px solid #4f46e5">
+          AI让流水线<strong style="color:#3730a3">更聪明</strong>；<br/>
+          传统门禁只看语法，<br/>AI门禁<strong style="color:#3730a3">读懂业务语义</strong>；<br/>
+          速度与质量<strong style="color:#f97316">不是对立的</strong>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="corner-label">AI赋能研发运维全流程 · 授课思路</div>
+
+</div>
+</body>
+</html>

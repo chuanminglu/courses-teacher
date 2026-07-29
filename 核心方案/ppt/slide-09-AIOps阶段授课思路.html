@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chapter 09 AIOps理论与实践 · 授课思路</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Noto Sans SC', 'Inter', sans-serif;
+      background: #0f1117;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .slide {
+      width: 1280px;
+      height: 720px;
+      overflow: hidden;
+      position: relative;
+      background: linear-gradient(150deg, #fffbeb 0%, #fef3c7 40%, #fff7ed 100%);
+    }
+
+    /* ── 背景装饰 ── */
+    .bg-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(180,83,9,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(180,83,9,0.04) 1px, transparent 1px);
+      background-size: 44px 44px;
+    }
+    .bg-orb-a {
+      position: absolute;
+      width: 500px; height: 500px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(217,119,6,0.11) 0%, transparent 65%);
+      top: -160px; right: -100px;
+      animation: orbFloat 9s ease-in-out infinite;
+    }
+    .bg-orb-b {
+      position: absolute;
+      width: 320px; height: 320px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(2,132,199,0.09) 0%, transparent 65%);
+      bottom: -80px; left: 360px;
+      animation: orbFloat 12s ease-in-out infinite reverse;
+    }
+    @keyframes orbFloat {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50%       { transform: translateY(-16px) scale(1.03); }
+    }
+
+    /* ── 左侧章节标识栏 ── */
+    .chapter-rail {
+      position: absolute;
+      left: 0; top: 0; bottom: 0; width: 8px;
+      background: linear-gradient(180deg, #b45309 0%, #d97706 45%, #0284c7 100%);
+    }
+
+    /* ── 顶部标题 ── */
+    .header {
+      position: relative; z-index: 10;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      padding: 28px 52px 0 52px;
+    }
+    .chapter-badge { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .chapter-num {
+      background: linear-gradient(135deg, #b45309, #d97706);
+      color: white; font-size: 11px; font-weight: 800;
+      letter-spacing: 1.5px; padding: 4px 12px; border-radius: 6px;
+    }
+    .chapter-subtitle { font-size: 12px; color: #9ca3af; font-weight: 400; letter-spacing: 1px; }
+    .header-title { font-size: 30px; font-weight: 900; color: #431407; letter-spacing: -0.3px; }
+    .header-title span { color: #d97706; }
+    .header-right { display: flex; gap: 10px; align-items: center; padding-bottom: 6px; }
+    .phase-pill { font-size: 11.5px; font-weight: 600; padding: 5px 13px; border-radius: 20px; letter-spacing: 0.3px; }
+
+    /* 分隔线 */
+    .divider {
+      position: relative; z-index: 10;
+      margin: 14px 52px 0; height: 1.5px;
+      background: linear-gradient(90deg, #d97706 0%, #fcd34d 50%, transparent 100%);
+    }
+
+    /* ── 主四格布局 ── */
+    .main-grid {
+      position: relative; z-index: 10;
+      display: grid;
+      grid-template-columns: 306px 1fr 240px;
+      grid-template-rows: 1fr 1fr;
+      gap: 12px;
+      padding: 16px 52px 0;
+      height: 530px;
+    }
+
+    /* 通用卡片 */
+    .panel {
+      border-radius: 16px; padding: 14px 15px 12px;
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.88);
+      box-shadow: 0 3px 16px rgba(217,119,6,0.08), 0 1px 3px rgba(0,0,0,0.04),
+        inset 0 1px 0 rgba(255,255,255,0.95);
+      background: rgba(255,255,255,0.72);
+      animation: panelIn 0.5s ease both;
+    }
+    @keyframes panelIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .panel:nth-child(1) { animation-delay: 0.05s; }
+    .panel:nth-child(2) { animation-delay: 0.12s; }
+    .panel:nth-child(3) { animation-delay: 0.20s; }
+    .panel:nth-child(4) { animation-delay: 0.28s; }
+
+    .panel-left    { grid-column: 1; grid-row: 1 / 3; }
+    .panel-mid-top { grid-column: 2; grid-row: 1; }
+    .panel-mid-bot { grid-column: 2; grid-row: 2; }
+    .panel-right   { grid-column: 3; grid-row: 1 / 3; }
+
+    /* 面板标题行 */
+    .panel-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .panel-icon { width: 24px; height: 24px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+    .panel-label { font-size: 11.5px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }
+    .panel-name  { font-size: 13px; font-weight: 700; color: #431407; }
+
+    /* ① 知识体系 */
+    .p1-icon   { background: #fef3c7; }
+    .p1-label  { color: #b45309; }
+    .p1-border { border-top: 3px solid #d97706; }
+
+    .knowledge-item { display: flex; align-items: flex-start; gap: 7px; margin-bottom: 5px; }
+    .k-dot { width: 5px; height: 5px; border-radius: 50%; background: #d97706; flex-shrink: 0; margin-top: 5px; }
+    .k-text { font-size: 11px; color: #374151; line-height: 1.45; }
+    .k-text strong { color: #431407; font-weight: 700; }
+
+    /* ② AI全景图 */
+    .p2-icon   { background: #e0f2fe; }
+    .p2-label  { color: #0369a1; }
+    .p2-border { border-top: 3px solid #0284c7; }
+
+    /* ③ 演练 */
+    .p3-icon   { background: #fef3c7; }
+    .p3-label  { color: #b45309; }
+    .p3-border { border-top: 3px solid #f59e0b; }
+
+    .drill-step { display: flex; align-items: flex-start; gap: 7px; margin-bottom: 5px; }
+    .ds-num { width: 19px; height: 19px; color: white; font-size: 10px; font-weight: 800; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .ds-text { font-size: 11px; color: #374151; line-height: 1.45; }
+    .ds-text strong { color: #431407; font-weight: 700; }
+
+    /* ⑤ 反模式 */
+    .p4-border { border-top: 3px solid #ef4444; }
+
+    .anti-item { border-radius: 10px; padding: 6px 10px; margin-bottom: 5px; font-size: 11px; line-height: 1.45; }
+    .anti-bad  { background: rgba(254,226,226,0.7); color: #7f1d1d; border-left: 3px solid #ef4444; }
+    .anti-warn { background: rgba(254,243,199,0.7); color: #78350f; border-left: 3px solid #f59e0b; }
+    .anti-good { background: rgba(224,242,254,0.8); color: #0c4a6e; border-left: 3px solid #0284c7; }
+    .anti-icon { font-size: 13px; margin-right: 4px; }
+
+    .flip-label { font-size: 10.5px; color: #d97706; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px; }
+    .flip-text  { font-size: 11px; color: #374151; line-height: 1.5; }
+    .flip-text strong { color: #92400e; }
+
+    .corner-label { position: absolute; bottom: 16px; right: 52px; z-index: 10; font-size: 11px; color: #d1d5db; letter-spacing: 1px; }
+  </style>
+</head>
+<body>
+<div class="slide">
+
+  <div class="bg-grid"></div>
+  <div class="bg-orb-a"></div>
+  <div class="bg-orb-b"></div>
+  <div class="chapter-rail"></div>
+
+  <!-- SVG 装饰 -->
+  <svg style="position:absolute;top:0;right:0;width:360px;height:260px;opacity:0.13;z-index:1" viewBox="0 0 360 260">
+    <defs>
+      <radialGradient id="rg9" cx="65%" cy="35%" r="55%">
+        <stop offset="0%" stop-color="#fcd34d"/>
+        <stop offset="100%" stop-color="transparent"/>
+      </radialGradient>
+    </defs>
+    <ellipse cx="260" cy="90" rx="200" ry="160" fill="url(#rg9)"/>
+  </svg>
+
+  <!-- 顶部标题 -->
+  <div class="header">
+    <div>
+      <div class="chapter-badge">
+        <span class="chapter-num">CHAPTER  09</span>
+        <span class="chapter-subtitle">智能运维层</span>
+      </div>
+      <div class="header-title">AIOps 理论与实践 &nbsp;<span>授课思路</span></div>
+    </div>
+    <div class="header-right">
+      <span class="phase-pill" style="background:#fef3c7;color:#b45309">① 知识体系</span>
+      <span class="phase-pill" style="background:#e0f2fe;color:#0369a1">② AI全景图</span>
+      <span class="phase-pill" style="background:#ffedd5;color:#c2410c">③ 演练要点</span>
+      <span class="phase-pill" style="background:#fef9c3;color:#92400e">④ 翻转课堂</span>
+      <span class="phase-pill" style="background:#fee2e2;color:#991b1b">⑤ 反模式</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 主四格 -->
+  <div class="main-grid">
+
+    <!-- ① 核心知识体系 (左列, 跨两行) -->
+    <div class="panel panel-left p1-border">
+      <div class="panel-head">
+        <div class="panel-icon p1-icon">🔔</div>
+        <div>
+          <div class="panel-label p1-label">① Core Knowledge</div>
+          <div class="panel-name">核心知识体系与最佳实践</div>
+        </div>
+      </div>
+
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>传统运维三大痛点与度量：</strong><span style="color:#ef4444;font-weight:700">响应慢</span>（故障响应小时级→分钟级）/<span style="color:#f97316;font-weight:700">告警爆炸</span>（每天数千条·噪声率&gt;80%）/<span style="color:#6b7280;font-weight:700">根因难</span>（靠"老司机"经验，根因定位准确率&lt;40%）；四大指标：<span style="color:#d97706;font-weight:700">MTTD</span>·MTTI·<span style="color:#d97706;font-weight:700">MTTR</span>·MTBF量化改进效果</div>
+      </div>
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>AIOps核心概念：</strong>AIOps = ITIL方法论 + DevOps文化 + SRE工程实践 + AI技术赋能；AIOps是<span style="color:#0284c7;font-weight:700">"赋能者"非"替代者"</span>——通过AI技术增强传统框架的执行效率而非颠覆它；智能运维平台·自动化与智能化双引擎</div>
+      </div>
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>AIOps在IT治理三层架构：</strong>①业务价值层（数字化转型支持·业务连续性SLA 99.99%·用户体验NPS提升）→②治理框架层（ITIL V4服务管理流程·DevOps开发运维一体化·SRE站点可靠性工程·SLO/SLA管理）→③技术实现层（AIOps平台·Prometheus/Grafana监控·Ansible/Terraform自动化）</div>
+      </div>
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>运维生命周期六大阶段AI赋能：</strong>阶段①<span style="color:#d97706;font-weight:700">监控检测</span>（多源指标采集·AI智能分析·异常识别）→②<span style="color:#f97316;font-weight:700">告警处理</span>（智能降噪聚合·10+散离→1核心事件）→③<span style="color:#ef4444;font-weight:700">问题诊断</span>（时间线重建·Top5堆栈·5 Whys根因）→④修复执行→⑤验证确认→⑥总结改进（持续优化闭环）</div>
+      </div>
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>AIOps实施方案初探·五级成熟度：</strong>Lv1手工→Lv2脚本自动化→Lv3<span style="color:#d97706;font-weight:700">AI辅助</span>（异常检测·告警降噪）→Lv4<span style="color:#d97706;font-weight:700">AI主导</span>（根因分析·自动派单）→Lv5<span style="color:#b45309;font-weight:700">自治运维</span>（自愈修复·自我优化）；<strong>建议从Lv3切入：告警降噪优先·ROI最快</strong></div>
+      </div>
+
+      <!-- 翻转课堂 -->
+      <div style="margin-top:7px;padding-top:7px;border-top:1px dashed #fcd34d">
+        <div class="flip-label">④ 翻转课堂 · 学员上台讲解</div>
+        <div class="flip-text" style="margin-bottom:5px">演练完成后，每组学员<strong>自行上台展示</strong>：</div>
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <div style="font-size:11.5px;color:#374151;display:flex;align-items:flex-start;gap:6px">
+            <span style="color:#d97706;font-weight:900;flex-shrink:0">›</span>
+            <span>AIOps与传统脚本自动化运维的<strong style="color:#92400e">本质区别在哪里？</strong></span>
+          </div>
+          <div style="font-size:11.5px;color:#374151;display:flex;align-items:flex-start;gap:6px">
+            <span style="color:#d97706;font-weight:900;flex-shrink:0">›</span>
+            <span>你们公司<strong style="color:#92400e">哪个运维痛点最适合优先切入AIOps？</strong></span>
+          </div>
+          <div style="font-size:11.5px;color:#374151;display:flex;align-items:flex-start;gap:6px">
+            <span style="color:#d97706;font-weight:900;flex-shrink:0">›</span>
+            <span>AI生成的RCA报告<strong style="color:#92400e">你能对照真实故障逐条验证吗？</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ② AI赋能AIOps全景图 (中间上) -->
+    <div class="panel panel-mid-top p2-border">
+      <div class="panel-head">
+        <div class="panel-icon p2-icon">🗺️</div>
+        <div>
+          <div class="panel-label p2-label">② AI Panorama · 运维生命周期六阶段 × AIOps赋能场景</div>
+          <div class="panel-name">AIOps 赋能全景架构（运维生命周期）</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-top:2px">
+
+        <!-- 阶段一 监控检测 -->
+        <div style="background:rgba(2,132,199,0.07);border-radius:10px;padding:8px 6px">
+          <div style="font-size:9px;font-weight:800;color:#0369a1;letter-spacing:0.5px;margin-bottom:2px">阶段一</div>
+          <div style="font-size:9.5px;font-weight:700;color:#0284c7;margin-bottom:4px">监控检测</div>
+          <div style="font-size:9.5px;color:#374151;line-height:1.4;display:flex;flex-direction:column;gap:2px">
+            <span style="background:rgba(2,132,199,0.10);border-radius:3px;padding:2px 4px;font-weight:600;color:#0c4a6e">多源指标采集</span>
+            <span style="background:rgba(2,132,199,0.10);border-radius:3px;padding:2px 4px;font-weight:600;color:#0c4a6e">AI智能分析</span>
+            <span style="background:rgba(2,132,199,0.10);border-radius:3px;padding:2px 4px;font-weight:600;color:#0c4a6e">基础设施监控</span>
+            <span style="background:rgba(2,132,199,0.10);border-radius:3px;padding:2px 4px;font-weight:600;color:#0c4a6e">应用性能监控</span>
+          </div>
+        </div>
+
+        <!-- 阶段二 告警处理 -->
+        <div style="background:rgba(217,119,6,0.07);border-radius:10px;padding:8px 6px">
+          <div style="font-size:9px;font-weight:800;color:#b45309;letter-spacing:0.5px;margin-bottom:2px">阶段二</div>
+          <div style="font-size:9.5px;font-weight:700;color:#d97706;margin-bottom:4px">告警处理</div>
+          <div style="font-size:9.5px;color:#374151;line-height:1.4;display:flex;flex-direction:column;gap:2px">
+            <span style="background:rgba(217,119,6,0.10);border-radius:3px;padding:2px 4px;font-weight:600;color:#78350f">智能降噪聚合</span>
+            <span style="background:rgba(217,119,6,0.10);border-radius:3px;padding:2px 4px;font-weight:600;color:#78350f">10+散离→1核心</span>
+            <span style="background:rgba(217,119,6,0.10);border-radius:3px;padding:2px 4px;font-weight:600;color:#78350f">告警优先级排序</span>
+            <span style="background:rgba(217,119,6,0.10);border-radius:3px;padding:2px 4px;font-weight:600;color:#78350f">故障预测预警</span>
+          </div>
+        </div>
+
+        <!-- 阶段三 问题诊断 -->
+        <div style="background:rgba(239,68,68,0.07);border-radius:10px;padding:8px 6px">
+          <div style="font-size:9px;font-weight:800;color:#b91c1c;letter-spacing:0.5px;margin-bottom:2px">阶段三</div>
+          <div style="font-size:9.5px;font-weight:700;color:#ef4444;margin-bottom:4px">问题诊断</div>
+          <div style="font-size:9.5px;color:#374151;line-height:1.4;display:flex;flex-direction:column;gap:2px">
+            <span style="background:rgba(239,68,68,0.10);border-radius:3px;padding:2px 4px;font-weight:600;color:#7f1d1d">时间线自动重建</span>
+            <span style="background:rgba(239,68,68,0.10);border-radius:3px;padding:2px 4px;font-weight:600;color:#7f1d1d">Top5报错堆栈</span>
+            <span style="background:rgba(239,68,68,0.10);border-radius:3px;padding:2px 4px;font-weight:600;color:#7f1d1d">5 Whys根因分析</span>
+            <span style="background:rgba(239,68,68,0.10);border-radius:3px;padding:2px 4px;font-weight:600;color:#7f1d1d">关联分析推荐</span>
+          </div>
+        </div>
+
+        <!-- 阶段四 修复执行 -->
+        <div style="background:rgba(249,115,22,0.07);border-radius:10px;padding:8px 6px">
+          <div style="font-size:9px;font-weight:800;color:#c2410c;letter-spacing:0.5px;margin-bottom:2px">阶段四</div>
+          <div style="font-size:9.5px;font-weight:700;color:#f97316;margin-bottom:4px">修复执行</div>
+          <div style="font-size:9.5px;color:#374151;line-height:1.4;display:flex;flex-direction:column;gap:2px">
+            <span style="background:rgba(249,115,22,0.10);border-radius:3px;padding:2px 4px;font-weight:600;color:#7c2d12">AI修复建议生成</span>
+            <span style="background:rgba(249,115,22,0.10);border-radius:3px;padding:2px 4px;font-weight:600;color:#7c2d12">AI风险评估</span>
+            <span style="background:rgba(249,115,22,0.10);border-radius:3px;padding:2px 4px;font-weight:600;color:#7c2d12">临时：熔断/限流</span>
+            <span style="background:rgba(249,115,22,0.10);border-radius:3px;padding:2px 4px;font-weight:600;color:#7c2d12">长期：代码修复</span>
+          </div>
+        </div>
+
+        <!-- 阶段五 验证确认 -->
+        <div style="background:rgba(5,150,105,0.07);border-radius:10px;padding:8px 6px">
+          <div style="font-size:9px;font-weight:800;color:#047857;letter-spacing:0.5px;margin-bottom:2px">阶段五</div>
+          <div style="font-size:9.5px;font-weight:700;color:#059669;margin-bottom:4px">验证确认</div>
+          <div style="font-size:9.5px;color:#374151;line-height:1.4;display:flex;flex-direction:column;gap:2px">
+            <span style="background:rgba(5,150,105,0.10);border-radius:3px;padding:2px 4px;font-weight:600;color:#064e3b">多CQV校验</span>
+            <span style="background:rgba(5,150,105,0.10);border-radius:3px;padding:2px 4px;font-weight:600;color:#064e3b">Staging环境验证</span>
+            <span style="background:rgba(5,150,105,0.10);border-radius:3px;padding:2px 4px;font-weight:600;color:#064e3b">AI效果评估</span>
+            <span style="background:rgba(5,150,105,0.10);border-radius:3px;padding:2px 4px;font-weight:600;color:#064e3b">回滚计划(必选)</span>
+          </div>
+        </div>
+
+        <!-- 阶段六 总结改进 -->
+        <div style="background:rgba(124,58,237,0.07);border-radius:10px;padding:8px 6px">
+          <div style="font-size:9px;font-weight:800;color:#5b21b6;letter-spacing:0.5px;margin-bottom:2px">阶段六</div>
+          <div style="font-size:9.5px;font-weight:700;color:#7c3aed;margin-bottom:4px">总结改进</div>
+          <div style="font-size:9.5px;color:#374151;line-height:1.4;display:flex;flex-direction:column;gap:2px">
+            <span style="background:rgba(124,58,237,0.10);border-radius:3px;padding:2px 4px;font-weight:600;color:#2e1065">RCA报告生成</span>
+            <span style="background:rgba(124,58,237,0.10);border-radius:3px;padding:2px 4px;font-weight:600;color:#2e1065">故障时间线归档</span>
+            <span style="background:rgba(124,58,237,0.10);border-radius:3px;padding:2px 4px;font-weight:600;color:#2e1065">改进措施跟踪</span>
+            <span style="background:rgba(124,58,237,0.10);border-radius:3px;padding:2px 4px;font-weight:600;color:#2e1065">知识库自动沉淀</span>
+          </div>
+        </div>
+
+      </div>
+      <!-- IT治理三层架构说明行 -->
+      <div style="margin-top:7px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+        <div style="font-size:10px;background:rgba(2,132,199,0.08);border-radius:6px;padding:4px 8px;border-left:2px solid #0284c7;color:#0c4a6e">
+          <strong>业务价值层</strong>：数字化转型支持·业务连续性(SLA 99.99%)·NPS提升
+        </div>
+        <div style="font-size:10px;background:rgba(217,119,6,0.08);border-radius:6px;padding:4px 8px;border-left:2px solid #d97706;color:#78350f">
+          <strong>治理框架层</strong>：ITIL V4·DevOps·SRE·SLO/SLA管理·Toil减少策略
+        </div>
+        <div style="font-size:10px;background:rgba(5,150,105,0.08);border-radius:6px;padding:4px 8px;border-left:2px solid #059669;color:#064e3b">
+          <strong>技术实现层</strong>：AIOps平台·Prometheus/Grafana·Ansible/Terraform自动化
+        </div>
+      </div>
+    </div>
+
+    <!-- ③ 演练流程 (中间下) -->
+    <div class="panel panel-mid-bot p3-border">
+      <div class="panel-head">
+        <div class="panel-icon p3-icon">⚡</div>
+        <div>
+          <div class="panel-name" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+            <span class="panel-label p3-label" style="margin-right:4px">③ Practice Flow</span>
+            <span style="font-size:11px;font-weight:700;color:#b91c1c;background:#fee2e2;padding:2px 9px;border-radius:4px">告警聚合</span>
+            <span style="font-size:10px;color:#9ca3af">→</span>
+            <span style="font-size:11px;font-weight:700;color:#b45309;background:#fef3c7;padding:2px 9px;border-radius:4px">根因分析</span>
+            <span style="font-size:10px;color:#9ca3af">→</span>
+            <span style="font-size:11px;font-weight:700;color:#0369a1;background:#e0f2fe;padding:2px 9px;border-radius:4px">修复方案</span>
+            <span style="font-size:10px;color:#9ca3af">→</span>
+            <span style="font-size:11px;font-weight:700;color:#5b21b6;background:#ede9fe;padding:2px 9px;border-radius:4px">RCA报告</span>
+            <span style="font-size:10px;color:#9ca3af;margin-left:4px">核心思路：AI负责数据聚合·人负责决策核验</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="drill-step">
+          <div class="ds-num" style="background:linear-gradient(135deg,#b91c1c,#ef4444)">1</div>
+          <div class="ds-text"><strong>告警聚合 + 错误提取（STEP 01-02）：</strong>INPUT: 10+条散离告警 → AI智能降噪，<span style="color:#ef4444;font-weight:700">聚合成1个核心事件</span>；海量日志流 → 提炼Top5关键报错堆栈；工具：Prometheus告警规则 + AI聚合分析</div>
+        </div>
+        <div class="drill-step">
+          <div class="ds-num" style="background:linear-gradient(135deg,#b45309,#f59e0b)">2</div>
+          <div class="ds-text"><strong>根因分析 + 可视化（STEP 03-04）：</strong>METHOD: <span style="color:#d97706;font-weight:700">5 Whys追问法</span>；AI关联分析输出推荐根因；工具：DeepSeek + 日志上下文；<span style="color:#0284c7;font-weight:700">Text-to-Graph</span>自动绘制因果图（Mermaid.js）</div>
+        </div>
+        <div class="drill-step">
+          <div class="ds-num" style="background:linear-gradient(135deg,#0369a1,#0284c7)">3</div>
+          <div class="ds-text"><strong>修复方案制定（STEP 05）：</strong>AI生成修复建议 + AI风险评估；临时方案：<span style="color:#f97316;font-weight:700">熔断/限流</span>；长期方案：代码修复；<span style="color:#ef4444;font-weight:700">必选：回滚计划(Rollback Plan)</span>；Staging环境验证修复策略</div>
+        </div>
+        <div class="drill-step">
+          <div class="ds-num" style="background:linear-gradient(135deg,#5b21b6,#7c3aed)">4</div>
+          <div class="ds-text"><strong>RCA报告生成（STEP 06）：</strong>AI Auto-Gen一键生成：故障时间线(Timeline) + 根因描述(Root Cause) + 改进措施(Action Items)；标准化归档；<span style="color:#7c3aed;font-weight:700">报告质量自动校验</span>；知识库自动沉淀</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑤ 反模式警示 (右列, 跨两行) -->
+    <div class="panel panel-right p4-border">
+      <div class="panel-head">
+        <div class="panel-icon" style="background:#fef3c7">⚠️</div>
+        <div>
+          <div class="panel-label" style="color:#991b1b">⑤ Anti-Patterns</div>
+          <div class="panel-name">反模式警示</div>
+        </div>
+      </div>
+
+      <!-- 核心理念强调 -->
+      <div class="anti-item anti-good">
+        <span class="anti-icon">🤝</span>
+        <strong>AIOps核心理念：</strong><br/>
+        AI负责<strong>数据聚合</strong>与<br/>
+        初步分析，人负责<br/>
+        <strong>决策与核验</strong>
+      </div>
+
+      <div class="anti-item anti-bad">
+        <span class="anti-icon">❌</span>
+        <strong>告警全开不降噪：</strong><br/>
+        数千条告警不聚合，<br/>AIOps成"噪音放大器"
+      </div>
+      <div class="anti-item anti-bad">
+        <span class="anti-icon">❌</span>
+        <strong>100%信任AI根因：</strong><br/>
+        不经人工复核直接<br/>执行修复脚本→故障扩大
+      </div>
+      <div class="anti-item anti-warn">
+        <span class="anti-icon">⚠️</span>
+        <strong>只建平台不建流程：</strong><br/>
+        AIOps孤岛化，未与<br/>ITIL/DevOps流程集成
+      </div>
+      <div class="anti-item anti-warn">
+        <span class="anti-icon">⚠️</span>
+        <strong>无RCA无改进闭环：</strong><br/>
+        故障处理完不复盘，<br/>重复故障率居高不下
+      </div>
+
+      <!-- KEY INSIGHT -->
+      <div style="margin-top:6px;padding-top:8px;border-top:1px dashed #fcd34d;">
+        <div style="font-size:11px;color:#9ca3af;margin-bottom:6px;font-weight:600;letter-spacing:0.5px">KEY INSIGHT</div>
+        <div style="font-size:11.5px;color:#374151;line-height:1.65;background:rgba(255,243,199,0.65);padding:8px 10px;border-radius:8px;border-left:3px solid #d97706">
+          故障不可避免，<br/>
+          <strong style="color:#b45309">重复故障可耻</strong>；<br/>
+          AI让MTTD从<strong style="color:#d97706">小时级</strong><br/>
+          降至<strong style="color:#059669">分钟级</strong>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="corner-label">AI赋能研发运维全流程 · 授课思路</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chapter 06 AI赋能编码与单元测试 · 授课思路</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Noto Sans SC', 'Inter', sans-serif;
+      background: #0f1117;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .slide {
+      width: 1280px;
+      height: 720px;
+      overflow: hidden;
+      position: relative;
+      background: linear-gradient(150deg, #eff6ff 0%, #dbeafe 45%, #e0f2fe 100%);
+    }
+
+    /* ── 背景装饰 ── */
+    .bg-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(37,99,235,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(37,99,235,0.04) 1px, transparent 1px);
+      background-size: 44px 44px;
+    }
+    .bg-orb-a {
+      position: absolute;
+      width: 500px; height: 500px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(37,99,235,0.09) 0%, transparent 65%);
+      top: -160px; right: -100px;
+      animation: orbFloat 9s ease-in-out infinite;
+    }
+    .bg-orb-b {
+      position: absolute;
+      width: 320px; height: 320px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(6,182,212,0.09) 0%, transparent 65%);
+      bottom: -80px; left: 360px;
+      animation: orbFloat 12s ease-in-out infinite reverse;
+    }
+    @keyframes orbFloat {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50%       { transform: translateY(-16px) scale(1.03); }
+    }
+
+    /* ── 左侧章节标识栏 ── */
+    .chapter-rail {
+      position: absolute;
+      left: 0; top: 0; bottom: 0; width: 8px;
+      background: linear-gradient(180deg, #1d4ed8 0%, #2563eb 45%, #06b6d4 100%);
+    }
+
+    /* ── 顶部标题 ── */
+    .header {
+      position: relative; z-index: 10;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      padding: 28px 52px 0 52px;
+    }
+    .chapter-badge {
+      display: inline-flex; align-items: center; gap: 8px; margin-bottom: 8px;
+    }
+    .chapter-num {
+      background: linear-gradient(135deg, #1d4ed8, #2563eb);
+      color: white; font-size: 11px; font-weight: 800;
+      letter-spacing: 1.5px; padding: 4px 12px; border-radius: 6px;
+    }
+    .chapter-subtitle { font-size: 12px; color: #9ca3af; font-weight: 400; letter-spacing: 1px; }
+    .header-title { font-size: 30px; font-weight: 900; color: #1e3a8a; letter-spacing: -0.3px; }
+    .header-title span { color: #2563eb; }
+    .header-right { display: flex; gap: 10px; align-items: center; padding-bottom: 6px; }
+    .phase-pill { font-size: 11.5px; font-weight: 600; padding: 5px 13px; border-radius: 20px; letter-spacing: 0.3px; }
+
+    /* 分隔线 */
+    .divider {
+      position: relative; z-index: 10;
+      margin: 14px 52px 0; height: 1.5px;
+      background: linear-gradient(90deg, #1d4ed8 0%, #93c5fd 50%, transparent 100%);
+    }
+
+    /* ── 主四格布局 ── */
+    .main-grid {
+      position: relative; z-index: 10;
+      display: grid;
+      grid-template-columns: 306px 1fr 240px;
+      grid-template-rows: 1fr 1fr;
+      gap: 12px;
+      padding: 16px 52px 0;
+      height: 530px;
+    }
+
+    /* 通用卡片 */
+    .panel {
+      border-radius: 16px; padding: 18px 18px 16px;
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.88);
+      box-shadow: 0 3px 16px rgba(37,99,235,0.07), 0 1px 3px rgba(0,0,0,0.04),
+        inset 0 1px 0 rgba(255,255,255,0.95);
+      background: rgba(255,255,255,0.72);
+      animation: panelIn 0.5s ease both;
+    }
+    @keyframes panelIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .panel:nth-child(1) { animation-delay: 0.05s; }
+    .panel:nth-child(2) { animation-delay: 0.12s; }
+    .panel:nth-child(3) { animation-delay: 0.20s; }
+    .panel:nth-child(4) { animation-delay: 0.28s; }
+
+    .panel-left    { grid-column: 1; grid-row: 1 / 3; }
+    .panel-mid-top { grid-column: 2; grid-row: 1; }
+    .panel-mid-bot { grid-column: 2; grid-row: 2; }
+    .panel-right   { grid-column: 3; grid-row: 1 / 3; }
+
+    /* 面板标题行 */
+    .panel-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .panel-icon {
+      width: 28px; height: 28px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+    .panel-label { font-size: 12.5px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }
+    .panel-name  { font-size: 14px; font-weight: 700; color: #1e3a8a; }
+
+    /* ① 知识体系 */
+    .p1-icon   { background: #dbeafe; }
+    .p1-label  { color: #1d4ed8; }
+    .p1-border { border-top: 3px solid #2563eb; }
+
+    .knowledge-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 7px; }
+    .k-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #2563eb; flex-shrink: 0; margin-top: 6px;
+    }
+    .k-text { font-size: 12px; color: #374151; line-height: 1.5; }
+    .k-text strong { color: #1e3a8a; font-weight: 700; }
+
+    /* ② AI全景图 */
+    .p2-icon   { background: #e0f2fe; }
+    .p2-label  { color: #0369a1; }
+    .p2-border { border-top: 3px solid #0ea5e9; }
+
+    /* ③ 演练 */
+    .p3-icon   { background: #fef3c7; }
+    .p3-label  { color: #d97706; }
+    .p3-border { border-top: 3px solid #f59e0b; }
+
+    .drill-step { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 7px; }
+    .ds-num {
+      width: 20px; height: 20px; color: white;
+      font-size: 11px; font-weight: 800; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .ds-text { font-size: 12px; color: #374151; line-height: 1.5; }
+    .ds-text strong { color: #1e3a8a; font-weight: 700; }
+
+    /* ⑤ 反模式 */
+    .p4-border { border-top: 3px solid #ef4444; }
+
+    .anti-item {
+      border-radius: 10px; padding: 8px 12px;
+      margin-bottom: 7px; font-size: 12px; line-height: 1.5;
+    }
+    .anti-bad  { background: rgba(254,226,226,0.7); color: #7f1d1d; border-left: 3px solid #ef4444; }
+    .anti-warn { background: rgba(254,243,199,0.7); color: #78350f; border-left: 3px solid #f59e0b; }
+    .anti-good { background: rgba(219,234,254,0.7); color: #1e3a8a; border-left: 3px solid #2563eb; }
+    .anti-icon { font-size: 13px; margin-right: 4px; }
+
+    .flip-label {
+      font-size: 11px; color: #f59e0b; font-weight: 700;
+      letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 6px;
+    }
+    .flip-text { font-size: 11.5px; color: #374151; line-height: 1.55; }
+    .flip-text strong { color: #92400e; }
+
+    /* 右下角标注 */
+    .corner-label {
+      position: absolute; bottom: 16px; right: 52px;
+      z-index: 10; font-size: 11px; color: #d1d5db; letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+<div class="slide">
+
+  <div class="bg-grid"></div>
+  <div class="bg-orb-a"></div>
+  <div class="bg-orb-b"></div>
+  <div class="chapter-rail"></div>
+
+  <!-- SVG 装饰 -->
+  <svg style="position:absolute;top:0;right:0;width:360px;height:260px;opacity:0.13;z-index:1" viewBox="0 0 360 260">
+    <defs>
+      <radialGradient id="rg6" cx="65%" cy="35%" r="55%">
+        <stop offset="0%" stop-color="#93c5fd"/>
+        <stop offset="100%" stop-color="transparent"/>
+      </radialGradient>
+    </defs>
+    <ellipse cx="260" cy="90" rx="200" ry="160" fill="url(#rg6)"/>
+  </svg>
+
+  <!-- 顶部标题 -->
+  <div class="header">
+    <div>
+      <div class="chapter-badge">
+        <span class="chapter-num">CHAPTER  06</span>
+        <span class="chapter-subtitle">工程实践层</span>
+      </div>
+      <div class="header-title">AI赋能编码与单元测试 &nbsp;<span>授课思路</span></div>
+    </div>
+    <div class="header-right">
+      <span class="phase-pill" style="background:#dbeafe;color:#1d4ed8">① 知识体系</span>
+      <span class="phase-pill" style="background:#e0f2fe;color:#0369a1">② AI全景图</span>
+      <span class="phase-pill" style="background:#fef3c7;color:#d97706">③ 演练要点</span>
+      <span class="phase-pill" style="background:#fef9c3;color:#92400e">④ 翻转课堂</span>
+      <span class="phase-pill" style="background:#fee2e2;color:#991b1b">⑤ 反模式</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 主四格 -->
+  <div class="main-grid">
+
+    <!-- ① 核心知识体系 (左列, 跨两行) -->
+    <div class="panel panel-left p1-border">
+      <div class="panel-head">
+        <div class="panel-icon p1-icon">💻</div>
+        <div>
+          <div class="panel-label p1-label">① Core Knowledge</div>
+          <div class="panel-name">核心知识体系与最佳实践</div>
+        </div>
+      </div>
+
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>AI原生技术中台架构（8大模块）：</strong>AI IDE（Copilot/代码解释）/ 低代码平台（可视化编排+Runtime）/ AI生成应用（Text-to-App）/ 微服务治理（智能网格Istio+AI）/ 数字化运维（ChatOps）/ 模型服务中台（MaaS·RAG·Prompt管理）/ 基础PaaS（AI数据库·向量库·知识图谱）/ DevOps保障（CI/CD · AIOps · LLMOps）</div>
+      </div>
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>AI驱动低代码开发原理（三段式）：</strong>User指令 → AI Copilot（<span style="color:#2563eb;font-weight:700">RAG理解</span>+<span style="color:#0369a1;font-weight:700">CoT规划</span>+<span style="color:#7c3aed;font-weight:700">MCP连接</span>）→ Low-Code Platform（DSL Engine / UI Renderer / Workflow）→ 企业级应用</div>
+      </div>
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>AI编程3种模式对比：</strong>辅助模式（行级补全·Tab接受）/ 生成模式（函数/模块级·Chat驱动）/ Agent模式（跨文件·自主规划·工具调用·自我校验）</div>
+      </div>
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>SDD+CDD+TDD三位一体：</strong>规格驱动（Spec）→ 注释驱动（Comments）→ 测试驱动（Red→Green→Refactor）；上下文管理（Context Engineering）贯穿始终</div>
+      </div>
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>GitHub Copilot高级应用：</strong>Java/Python/前端多栈实践；自定义Instructions / Skill / Agent配置；Copilot Workspace端到端任务编排</div>
+      </div>
+
+      <!-- 翻转课堂 -->
+      <div style="margin-top:10px;padding-top:10px;border-top:1px dashed #bfdbfe">
+        <div class="flip-label">④ 翻转课堂 · 学员上台讲解</div>
+        <div class="flip-text" style="margin-bottom:7px">演练完成后，每组学员<strong>自行上台展示</strong>：</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <div style="font-size:11.5px;color:#374151;display:flex;align-items:flex-start;gap:6px">
+            <span style="color:#f59e0b;font-weight:900;flex-shrink:0">›</span>
+            <span>TDD测试是否先于实现，<strong style="color:#92400e">Red-Green-Refactor节奏是否清晰？</strong></span>
+          </div>
+          <div style="font-size:11.5px;color:#374151;display:flex;align-items:flex-start;gap:6px">
+            <span style="color:#f59e0b;font-weight:900;flex-shrink:0">›</span>
+            <span>Mock前后端分离是否做到<strong style="color:#92400e">契约优先、接口稳定？</strong></span>
+          </div>
+          <div style="font-size:11.5px;color:#374151;display:flex;align-items:flex-start;gap:6px">
+            <span style="color:#f59e0b;font-weight:900;flex-shrink:0">›</span>
+            <span>Agent上下文是否控制在<strong style="color:#92400e">有效窗口内，无幻觉输出？</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ② AI赋能编码全景图 (中间上) -->
+    <div class="panel panel-mid-top p2-border">
+      <div class="panel-head">
+        <div class="panel-icon p2-icon">🗺️</div>
+        <div>
+          <div class="panel-label p2-label">② AI Panorama · 编码+测试+重构+辅助功能</div>
+          <div class="panel-name">AI 赋能编码与单元测试全景图</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:2px">
+
+        <!-- 代码生成 -->
+        <div style="background:rgba(37,99,235,0.07);border-radius:10px;padding:9px 7px">
+          <div style="font-size:10px;font-weight:800;color:#1d4ed8;letter-spacing:0.6px;margin-bottom:6px">代码生成</div>
+          <div style="font-size:10px;color:#374151;line-height:1.45;display:flex;flex-direction:column;gap:3px">
+            <span style="background:rgba(37,99,235,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#1e3a8a">业务逻辑实现</span>
+            <span style="background:rgba(37,99,235,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#1e3a8a">API接口开发</span>
+            <span style="background:rgba(37,99,235,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#1e3a8a">数据库操作</span>
+            <span style="background:rgba(37,99,235,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#1e3a8a">算法实现</span>
+          </div>
+        </div>
+
+        <!-- 代码补全 -->
+        <div style="background:rgba(6,182,212,0.07);border-radius:10px;padding:9px 7px">
+          <div style="font-size:10px;font-weight:800;color:#0369a1;letter-spacing:0.6px;margin-bottom:6px">代码补全</div>
+          <div style="font-size:10px;color:#374151;line-height:1.45;display:flex;flex-direction:column;gap:3px">
+            <span style="background:rgba(6,182,212,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#0c4a6e">智能提示</span>
+            <span style="background:rgba(6,182,212,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#0c4a6e">上下文感知</span>
+            <span style="background:rgba(6,182,212,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#0c4a6e">多行补全</span>
+            <span style="background:rgba(6,182,212,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#0c4a6e">函数参数填充</span>
+          </div>
+        </div>
+
+        <!-- 代码优化 -->
+        <div style="background:rgba(124,58,237,0.07);border-radius:10px;padding:9px 7px">
+          <div style="font-size:10px;font-weight:800;color:#5b21b6;letter-spacing:0.6px;margin-bottom:6px">代码优化</div>
+          <div style="font-size:10px;color:#374151;line-height:1.45;display:flex;flex-direction:column;gap:3px">
+            <span style="background:rgba(124,58,237,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#3b0764">性能优化建议</span>
+            <span style="background:rgba(124,58,237,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#3b0764">代码重构</span>
+            <span style="background:rgba(124,58,237,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#3b0764">设计模式应用</span>
+            <span style="background:rgba(124,58,237,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#3b0764">最佳实践推荐</span>
+          </div>
+        </div>
+
+        <!-- 问题诊断 -->
+        <div style="background:rgba(239,68,68,0.07);border-radius:10px;padding:9px 7px">
+          <div style="font-size:10px;font-weight:800;color:#b91c1c;letter-spacing:0.6px;margin-bottom:6px">问题诊断</div>
+          <div style="font-size:10px;color:#374151;line-height:1.45;display:flex;flex-direction:column;gap:3px">
+            <span style="background:rgba(239,68,68,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#7f1d1d">Bug检测</span>
+            <span style="background:rgba(239,68,68,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#7f1d1d">逻辑纠错</span>
+            <span style="background:rgba(239,68,68,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#7f1d1d">异常处理</span>
+            <span style="background:rgba(239,68,68,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#7f1d1d">代码审查</span>
+          </div>
+        </div>
+
+        <!-- 代码转换 -->
+        <div style="background:rgba(249,115,22,0.07);border-radius:10px;padding:9px 7px">
+          <div style="font-size:10px;font-weight:800;color:#c2410c;letter-spacing:0.6px;margin-bottom:6px">代码转换</div>
+          <div style="font-size:10px;color:#374151;line-height:1.45;display:flex;flex-direction:column;gap:3px">
+            <span style="background:rgba(249,115,22,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#7c2d12">语言间转换</span>
+            <span style="background:rgba(249,115,22,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#7c2d12">框架迁移</span>
+            <span style="background:rgba(249,115,22,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#7c2d12">API升级</span>
+            <span style="background:rgba(249,115,22,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#7c2d12">格式标准化</span>
+          </div>
+        </div>
+
+        <!-- 单元测试生成 -->
+        <div style="background:rgba(5,150,105,0.07);border-radius:10px;padding:9px 7px">
+          <div style="font-size:10px;font-weight:800;color:#065f46;letter-spacing:0.6px;margin-bottom:6px">单元测试</div>
+          <div style="font-size:10px;color:#374151;line-height:1.45;display:flex;flex-direction:column;gap:3px">
+            <span style="background:rgba(5,150,105,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#064e3b">测试用例生成</span>
+            <span style="background:rgba(5,150,105,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#064e3b">Mock数据构造</span>
+            <span style="background:rgba(5,150,105,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#064e3b">覆盖率分析</span>
+            <span style="background:rgba(5,150,105,0.10);border-radius:3px;padding:2px 5px;font-weight:600;color:#064e3b">注释·文档写作</span>
+          </div>
+        </div>
+
+      </div>
+      <div style="margin-top:7px;font-size:10px;color:#94a3b8;text-align:right;letter-spacing:0.5px">代码生成 → 智能补全 → 优化重构 → 问题诊断 → 跨语言转换 → 单元测试全自动</div>
+    </div>
+
+    <!-- ③ 演练流程 (中间下) -->
+    <div class="panel panel-mid-bot p3-border">
+      <div class="panel-head">
+        <div class="panel-icon p3-icon">⚡</div>
+        <div>
+          <div class="panel-name" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+            <span class="panel-label p3-label" style="margin-right:4px">③ Practice Flow</span>
+            <span style="font-size:11px;font-weight:700;color:#1d4ed8;background:#dbeafe;padding:2px 9px;border-radius:4px">TDD开发</span>
+            <span style="font-size:10px;color:#9ca3af">→</span>
+            <span style="font-size:11px;font-weight:700;color:#0369a1;background:#e0f2fe;padding:2px 9px;border-radius:4px">Mock前后端</span>
+            <span style="font-size:10px;color:#9ca3af">→</span>
+            <span style="font-size:11px;font-weight:700;color:#5b21b6;background:#ede9fe;padding:2px 9px;border-radius:4px">Agent模式</span>
+            <span style="font-size:10px;color:#9ca3af">→</span>
+            <span style="font-size:11px;font-weight:700;color:#065f46;background:#d1fae5;padding:2px 9px;border-radius:4px">上下文管理</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="drill-step">
+          <div class="ds-num" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">1</div>
+          <div class="ds-text"><strong>AI驱动的TDD开发：</strong>DeepSeek/Copilot生成失败测试（Red）→ 最小实现通过测试（Green）→ AI辅助重构消除坏味道（Refactor）；全流程≤30分钟</div>
+        </div>
+        <div class="drill-step">
+          <div class="ds-num" style="background:linear-gradient(135deg,#0369a1,#0ea5e9)">2</div>
+          <div class="ds-text"><strong>AI驱动的Mock前后端开发：</strong>AI生成OpenAPI契约 → AI生成Mock Server（MSW/Mockoon）→ 前后端并行开发 → 契约验证自动化</div>
+        </div>
+        <div class="drill-step">
+          <div class="ds-num" style="background:linear-gradient(135deg,#5b21b6,#7c3aed)">3</div>
+          <div class="ds-text"><strong>Agent开发模式实战：</strong>多文件跨模块任务编排；Copilot Workspace/Cursor Composer实操；工具调用链（MCP）+ 自我校验循环</div>
+        </div>
+        <div class="drill-step">
+          <div class="ds-num" style="background:linear-gradient(135deg,#059669,#10b981)">4</div>
+          <div class="ds-text"><strong>Context Engineering上下文管理：</strong>Spec文档 + 代码规范 + 历史对话压缩；.cursorrules / Copilot Instructions配置；幻觉抑制三闸口技巧</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑤ 反模式警示 (右列, 跨两行) -->
+    <div class="panel panel-right p4-border">
+      <div class="panel-head">
+        <div class="panel-icon" style="background:#fee2e2">⚠️</div>
+        <div>
+          <div class="panel-label" style="color:#991b1b">⑤ Anti-Patterns</div>
+          <div class="panel-name">反模式警示</div>
+        </div>
+      </div>
+
+      <!-- 核心理念强调 -->
+      <div class="anti-item anti-good" style="border-left-color:#2563eb;background:rgba(219,234,254,0.8)">
+        <span class="anti-icon">🧑‍✈️</span>
+        <strong>核心理念：</strong><br/>
+        AI 永远是 <strong>Copilot</strong>，<br/>
+        人是主导 · 人负责决策
+      </div>
+
+      <div class="anti-item anti-bad">
+        <span class="anti-icon">❌</span>
+        <strong>无脑复制粘贴：</strong><br/>
+        AI生成代码不理解直接<br/>提交，埋下安全漏洞隐患
+      </div>
+      <div class="anti-item anti-bad">
+        <span class="anti-icon">❌</span>
+        <strong>跳过单元测试：</strong><br/>
+        依赖AI生成逻辑，<br/>不写测试 = 技术债累积
+      </div>
+      <div class="anti-item anti-warn">
+        <span class="anti-icon">⚠️</span>
+        <strong>上下文污染：</strong><br/>
+        无结构Prompt堆砌导致<br/>AI幻觉频发、方向漂移
+      </div>
+      <div class="anti-item anti-warn">
+        <span class="anti-icon">⚠️</span>
+        <strong>过度依赖Agent：</strong><br/>
+        大任务不拆分直接交AI<br/>结果失控·难以回溯审查
+      </div>
+
+      <!-- KEY INSIGHT -->
+      <div style="margin-top:6px;padding-top:8px;border-top:1px dashed #fca5a5;">
+        <div style="font-size:11px;color:#9ca3af;margin-bottom:6px;font-weight:600;letter-spacing:0.5px">KEY INSIGHT</div>
+        <div style="font-size:11.5px;color:#374151;line-height:1.65;background:rgba(219,234,254,0.65);padding:8px 10px;border-radius:8px;border-left:3px solid #2563eb">
+          AI写代码，<strong style="color:#1d4ed8">人审架构</strong>；<br/>
+          AI跑测试，<strong style="color:#1d4ed8">人定质量标准</strong>；<br/>
+          工具越强，<strong style="color:#1d4ed8">判断力越重要</strong>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="corner-label">AI赋能研发运维全流程 · 授课思路</div>
+
+</div>
+</body>
+</html>

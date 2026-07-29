@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chapter 2 需求阶段 · AI赋能授课思路</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Noto Sans SC', 'Inter', sans-serif;
+      background: #0f1117;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .slide {
+      width: 1280px;
+      height: 720px;
+      overflow: hidden;
+      position: relative;
+      background: linear-gradient(150deg, #f8faff 0%, #eef2ff 45%, #faf5ff 100%);
+    }
+
+    /* ── 背景装饰 ── */
+    .bg-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(99,102,241,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99,102,241,0.035) 1px, transparent 1px);
+      background-size: 44px 44px;
+    }
+    .bg-orb-a {
+      position: absolute;
+      width: 500px; height: 500px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(99,102,241,0.10) 0%, transparent 65%);
+      top: -160px; right: -100px;
+      animation: orbFloat 9s ease-in-out infinite;
+    }
+    .bg-orb-b {
+      position: absolute;
+      width: 300px; height: 300px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(14,165,233,0.09) 0%, transparent 65%);
+      bottom: -80px; left: 380px;
+      animation: orbFloat 12s ease-in-out infinite reverse;
+    }
+    @keyframes orbFloat {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-16px) scale(1.03); }
+    }
+
+    /* ── 左侧章节标识栏 ── */
+    .chapter-rail {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 8px;
+      background: linear-gradient(180deg, #6366f1 0%, #0ea5e9 50%, #10b981 100%);
+    }
+
+    /* ── 顶部标题 ── */
+    .header {
+      position: relative; z-index: 10;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 28px 52px 0 52px;
+    }
+    .chapter-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .chapter-num {
+      background: linear-gradient(135deg, #6366f1, #818cf8);
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      padding: 4px 12px;
+      border-radius: 6px;
+    }
+    .chapter-subtitle {
+      font-size: 12px;
+      color: #9ca3af;
+      font-weight: 400;
+      letter-spacing: 1px;
+    }
+    .header-title {
+      font-size: 30px;
+      font-weight: 900;
+      color: #1e1b4b;
+      letter-spacing: -0.3px;
+    }
+    .header-title span { color: #6366f1; }
+    .header-right {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding-bottom: 6px;
+    }
+    .phase-pill {
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 5px 13px;
+      border-radius: 20px;
+      letter-spacing: 0.3px;
+    }
+
+    /* 分隔 */
+    .divider {
+      position: relative; z-index: 10;
+      margin: 14px 52px 0;
+      height: 1.5px;
+      background: linear-gradient(90deg, #6366f1 0%, #c7d2fe 50%, transparent 100%);
+    }
+
+    /* ── 主内容四格布局 ── */
+    .main-grid {
+      position: relative; z-index: 10;
+      display: grid;
+      grid-template-columns: 310px 1fr 240px;
+      grid-template-rows: 1fr 1fr;
+      gap: 12px;
+      padding: 16px 52px 0;
+      height: 530px;
+    }
+
+    /* 通用卡片 */
+    .panel {
+      border-radius: 16px;
+      padding: 18px 18px 16px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.88);
+      box-shadow: 0 3px 16px rgba(99,102,241,0.07), 0 1px 3px rgba(0,0,0,0.04),
+        inset 0 1px 0 rgba(255,255,255,0.95);
+      background: rgba(255,255,255,0.70);
+      animation: panelIn 0.5s ease both;
+    }
+    @keyframes panelIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .panel:nth-child(1) { animation-delay: 0.05s; }
+    .panel:nth-child(2) { animation-delay: 0.12s; }
+    .panel:nth-child(3) { animation-delay: 0.20s; }
+    .panel:nth-child(4) { animation-delay: 0.28s; }
+
+    /* 左列跨两行 */
+    .panel-left { grid-column: 1; grid-row: 1 / 3; }
+    /* 中间上 */
+    .panel-mid-top { grid-column: 2; grid-row: 1; }
+    /* 中间下 */
+    .panel-mid-bot { grid-column: 2; grid-row: 2; }
+    /* 右列跨两行 */
+    .panel-right { grid-column: 3; grid-row: 1 / 3; }
+
+    /* 面板标题行 */
+    .panel-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .panel-icon {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .panel-label {
+      font-size: 12.5px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .panel-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1e1b4b;
+    }
+
+    /* 知识体系面板 */
+    .p1-icon { background: #ede9fe; }
+    .p1-label { color: #5b21b6; }
+    .p1-border { border-top: 3px solid #6366f1; }
+
+    .knowledge-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 9px;
+    }
+    .k-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #6366f1;
+      flex-shrink: 0;
+      margin-top: 6px;
+    }
+    .k-text {
+      font-size: 12.5px;
+      color: #374151;
+      line-height: 1.55;
+    }
+    .k-text strong {
+      color: #1e1b4b;
+      font-weight: 700;
+    }
+
+    /* AI全景地图面板 */
+    .p2-icon { background: #e0f2fe; }
+    .p2-label { color: #0369a1; }
+    .p2-border { border-top: 3px solid #0ea5e9; }
+
+    .flow-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 7px;
+    }
+    .flow-tag {
+      font-size: 11px;
+      font-weight: 700;
+      color: white;
+      padding: 3px 9px;
+      border-radius: 6px;
+      min-width: 60px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .flow-arrow {
+      color: #9ca3af;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .flow-desc {
+      font-size: 12px;
+      color: #4b5563;
+      line-height: 1.4;
+    }
+
+    /* 演练面板 */
+    .p3-icon { background: #d1fae5; }
+    .p3-label { color: #065f46; }
+    .p3-border { border-top: 3px solid #10b981; }
+
+    .drill-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 7px;
+    }
+    .ds-num {
+      width: 20px; height: 20px;
+      background: linear-gradient(135deg, #10b981, #34d399);
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .ds-text {
+      font-size: 12px;
+      color: #374151;
+      line-height: 1.5;
+    }
+    .ds-text strong { color: #064e3b; font-weight: 700; }
+
+    /* 反模式面板 */
+    .p4-border { border-top: 3px solid #ef4444; }
+
+    .anti-item {
+      border-radius: 10px;
+      padding: 9px 12px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .anti-bad {
+      background: rgba(254,226,226,0.7);
+      color: #7f1d1d;
+      border-left: 3px solid #ef4444;
+    }
+    .anti-good {
+      background: rgba(209,250,229,0.7);
+      color: #064e3b;
+      border-left: 3px solid #10b981;
+    }
+    .anti-icon {
+      font-size: 13px;
+      margin-right: 4px;
+    }
+
+    .flip-label {
+      font-size: 11px;
+      color: #f59e0b;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .flip-text {
+      font-size: 11.5px;
+      color: #374151;
+      line-height: 1.55;
+    }
+    .flip-text strong { color: #92400e; }
+
+    /* 右下角标注 */
+    .corner-label {
+      position: absolute;
+      bottom: 16px; right: 52px;
+      z-index: 10;
+      font-size: 11px;
+      color: #d1d5db;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+<div class="slide">
+
+  <div class="bg-grid"></div>
+  <div class="bg-orb-a"></div>
+  <div class="bg-orb-b"></div>
+  <div class="chapter-rail"></div>
+
+  <!-- SVG 装饰 -->
+  <svg style="position:absolute;top:0;right:0;width:360px;height:260px;opacity:0.14;z-index:1" viewBox="0 0 360 260">
+    <defs>
+      <radialGradient id="rg2" cx="65%" cy="35%" r="55%">
+        <stop offset="0%" stop-color="#818cf8"/>
+        <stop offset="100%" stop-color="transparent"/>
+      </radialGradient>
+    </defs>
+    <ellipse cx="260" cy="90" rx="200" ry="160" fill="url(#rg2)"/>
+  </svg>
+
+  <!-- 顶部 -->
+  <div class="header">
+    <div>
+      <div class="chapter-badge">
+        <span class="chapter-num">CHAPTER  02</span>
+        <span class="chapter-subtitle">方法实践层 · Level 3</span>
+      </div>
+      <div class="header-title">需求阶段 &nbsp;<span>AI 赋能授课思路</span></div>
+    </div>
+    <div class="header-right">
+      <span class="phase-pill" style="background:#ede9fe;color:#5b21b6">① 知识体系</span>
+      <span class="phase-pill" style="background:#e0f2fe;color:#0369a1">② AI全景图</span>
+      <span class="phase-pill" style="background:#d1fae5;color:#065f46">③ 演练要点</span>
+      <span class="phase-pill" style="background:#fef3c7;color:#92400e">④ 翻转课堂</span>
+      <span class="phase-pill" style="background:#fee2e2;color:#991b1b">⑤ 反模式</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 主四格 -->
+  <div class="main-grid">
+
+    <!-- ① 核心知识体系 (左列, 跨两行) -->
+    <div class="panel panel-left p1-border">
+      <div class="panel-head">
+        <div class="panel-icon p1-icon">📚</div>
+        <div>
+          <div class="panel-label p1-label">① Core Knowledge</div>
+          <div class="panel-name">核心知识体系与最佳实践</div>
+        </div>
+      </div>
+
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>三个层次：</strong>业务需求 / 用户需求 / 系统需求</div>
+      </div>
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>获取技术：</strong>访谈、观察、问卷、原型、JAD</div>
+      </div>
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>分析方法：</strong>用例分析、领域概念建模、上下文图、敏捷需求</div>
+      </div>
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>SRS 规范：</strong>结构标准 + 质量评审要点</div>
+      </div>
+      <div class="knowledge-item">
+        <div class="k-dot"></div>
+        <div class="k-text"><strong>变更管理：</strong>基线控制、影响分析、版本追踪</div>
+      </div>
+
+      <!-- 翻转课堂说明 -->
+      <div style="margin-top:14px;padding-top:12px;border-top:1px dashed #e5e7eb">
+        <div class="flip-label">④ 翻转课堂 · 学员讲解与总结</div>
+        <div class="flip-text" style="margin-bottom:8px">演练完成后，每组学员<strong>自行上台讲解</strong>：</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <div style="font-size:11.5px;color:#374151;display:flex;align-items:flex-start;gap:6px">
+            <span style="color:#f59e0b;font-weight:900;flex-shrink:0">›</span>
+            <span>提示词<strong style="color:#92400e">为什么这样设计？</strong></span>
+          </div>
+          <div style="font-size:11.5px;color:#374151;display:flex;align-items:flex-start;gap:6px">
+            <span style="color:#f59e0b;font-weight:900;flex-shrink:0">›</span>
+            <span>AI输出哪里<strong style="color:#92400e">满意 / 不满意？</strong></span>
+          </div>
+          <div style="font-size:11.5px;color:#374151;display:flex;align-items:flex-start;gap:6px">
+            <span style="color:#f59e0b;font-weight:900;flex-shrink:0">›</span>
+            <span>如果重来，<strong style="color:#92400e">我会怎么改进？</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ② AI赋能全景地图 (中间上) -->
+    <div class="panel panel-mid-top p2-border">
+      <div class="panel-head">
+        <div class="panel-icon p2-icon">🤖</div>
+        <div>
+          <div class="panel-label p2-label">② AI Panorama</div>
+          <div class="panel-name">AI 赋能全景地图</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:2px">
+
+        <!-- 01 市场分析 -->
+        <div style="background:rgba(99,102,241,0.07);border-radius:10px;padding:10px 8px">
+          <div style="font-size:10px;font-weight:800;color:#6366f1;letter-spacing:0.8px;margin-bottom:7px">01 市场分析</div>
+          <div style="font-size:11px;color:#1e1b4b;font-weight:700;margin-bottom:2px">RAG 情报自动化</div>
+          <div style="font-size:10px;color:#6b7280;line-height:1.4;margin-bottom:6px">秒级阅读研报，数据驱动决策</div>
+          <div style="font-size:11px;color:#1e1b4b;font-weight:700;margin-bottom:2px">价值主张验证</div>
+          <div style="font-size:10px;color:#6b7280;line-height:1.4">模拟 VC 视角批判商业逻辑</div>
+        </div>
+
+        <!-- 02 业务建模 -->
+        <div style="background:rgba(14,165,233,0.07);border-radius:10px;padding:10px 8px">
+          <div style="font-size:10px;font-weight:800;color:#0ea5e9;letter-spacing:0.8px;margin-bottom:7px">02 业务建模</div>
+          <div style="font-size:11px;color:#1e1b4b;font-weight:700;margin-bottom:2px">全角色情绪模拟</div>
+          <div style="font-size:10px;color:#6b7280;line-height:1.4;margin-bottom:6px">生成 UJM 痛点与情绪曲线</div>
+          <div style="font-size:11px;color:#1e1b4b;font-weight:700;margin-bottom:2px">非结构化转图</div>
+          <div style="font-size:10px;color:#6b7280;line-height:1.4">录音/纪要直接生成泳道图</div>
+        </div>
+
+        <!-- 03 业务需求 -->
+        <div style="background:rgba(124,58,237,0.07);border-radius:10px;padding:10px 8px">
+          <div style="font-size:10px;font-weight:800;color:#7c3aed;letter-spacing:0.8px;margin-bottom:7px">03 业务需求</div>
+          <div style="font-size:11px;color:#1e1b4b;font-weight:700;margin-bottom:2px">依赖推理与裁剪</div>
+          <div style="font-size:10px;color:#6b7280;line-height:1.4;margin-bottom:6px">识别隐性依赖，科学界定 Scope</div>
+          <div style="font-size:11px;color:#1e1b4b;font-weight:700;margin-bottom:2px">对抗式建模</div>
+          <div style="font-size:10px;color:#6b7280;line-height:1.4">查漏补缺，反向推导遗漏用例</div>
+        </div>
+
+        <!-- 04 用户需求 -->
+        <div style="background:rgba(245,158,11,0.07);border-radius:10px;padding:10px 8px">
+          <div style="font-size:10px;font-weight:800;color:#d97706;letter-spacing:0.8px;margin-bottom:7px">04 用户需求</div>
+          <div style="font-size:11px;color:#1e1b4b;font-weight:700;margin-bottom:2px">防御性规约生成</div>
+          <div style="font-size:10px;color:#6b7280;line-height:1.4;margin-bottom:6px">自动补全异常流与边缘场景</div>
+          <div style="font-size:11px;color:#1e1b4b;font-weight:700;margin-bottom:2px">INVEST 智能检查</div>
+          <div style="font-size:10px;color:#6b7280;line-height:1.4">优化故事描述，补全验收标准</div>
+        </div>
+
+        <!-- 05 软件需求 -->
+        <div style="background:rgba(16,185,129,0.07);border-radius:10px;padding:10px 8px">
+          <div style="font-size:10px;font-weight:800;color:#059669;letter-spacing:0.8px;margin-bottom:7px">05 软件需求</div>
+          <div style="font-size:11px;color:#1e1b4b;font-weight:700;margin-bottom:2px">需求即测试</div>
+          <div style="font-size:10px;color:#6b7280;line-height:1.4;margin-bottom:6px">SRS 直接生成 100% 覆盖用例</div>
+          <div style="font-size:11px;color:#1e1b4b;font-weight:700;margin-bottom:2px">智能审计</div>
+          <div style="font-size:10px;color:#6b7280;line-height:1.4">NFR 遗漏检查与变更影响分析</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ③ 演练知识要点 (中间下) -->
+    <div class="panel panel-mid-bot p3-border">
+      <div class="panel-head">
+        <div class="panel-icon p3-icon">⚡</div>
+        <div>
+          <div class="panel-label p3-label">③ Practice Points</div>
+          <div class="panel-name">演练知识要点</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="drill-step">
+          <div class="ds-num">1</div>
+          <div class="ds-text"><strong>BRD 文档</strong>界定项目视图与系统边界</div>
+        </div>
+        <div class="drill-step">
+          <div class="ds-num">2</div>
+          <div class="ds-text"><strong>用户旅程</strong>挖掘业务痛点与需求来源</div>
+        </div>
+        <div class="drill-step">
+          <div class="ds-num">3</div>
+          <div class="ds-text"><strong>需求澄清</strong> → Epic → Story → 验收标准</div>
+        </div>
+        <div class="drill-step">
+          <div class="ds-num">4</div>
+          <div class="ds-text"><strong>AI 生成</strong>交互原型（HTML / Figma MCP）</div>
+        </div>
+        <div class="drill-step" style="grid-column:1/-1">
+          <div class="ds-num">5</div>
+          <div class="ds-text"><strong>AI 需求变更管理</strong>：影响分析 + 变更追踪自动化</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑤ 反模式警示 (右列, 跨两行) -->
+    <div class="panel panel-right p4-border">
+      <div class="panel-head">
+        <div class="panel-icon" style="background:#fee2e2">⚠️</div>
+        <div>
+          <div class="panel-label" style="color:#991b1b">⑤ Anti-Patterns</div>
+          <div class="panel-name">反模式警示</div>
+        </div>
+      </div>
+
+      <div class="anti-item anti-bad">
+        <span class="anti-icon">❌</span>
+        直接让AI"写需求文档"，<br/>不提供任何业务上下文
+      </div>
+      <div class="anti-item anti-bad">
+        <span class="anti-icon">❌</span>
+        AI生成版本直接上报，<br/>跳过需求评审环节
+      </div>
+      <div class="anti-item anti-bad">
+        <span class="anti-icon">❌</span>
+        需求只有功能描述，<br/>无验收标准，无追溯
+      </div>
+      <div class="anti-item anti-good">
+        <span class="anti-icon">✅</span>
+        AI是"需求加速器"，<br/>领域知识与用户沟通<br/>不可外包给AI
+      </div>
+
+      <!-- 分隔 -->
+      <div style="margin-top:10px;padding-top:10px;border-top:1px dashed #fee2e2;">
+        <div style="font-size:11px;color:#9ca3af;margin-bottom:6px;font-weight:600;letter-spacing:0.5px">KEY INSIGHT</div>
+        <div style="font-size:12px;color:#374151;line-height:1.6;background:rgba(254,243,199,0.6);padding:8px 10px;border-radius:8px;border-left:3px solid #f59e0b">
+          AI是<strong style="color:#92400e">初稿质量</strong>的放大器；<br/>需求质量由<strong style="color:#92400e">人的判断力</strong>决定
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="corner-label">AI赋能研发运维全流程 · 授课思路 · Slide 02</div>
+
+</div>
+</body>
+</html>
