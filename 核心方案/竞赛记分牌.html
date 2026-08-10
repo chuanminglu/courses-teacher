@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI重构DevOps · 竞赛记分牌</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter','PingFang SC','Microsoft YaHei',sans-serif; background:#f0f2f5; color:#1a1a2e; padding:16px; }
+.header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:8px; }
+.header h1 { font-size:22px; color:#1a1a2e; }
+.controls { display:flex; gap:8px; flex-wrap:wrap; }
+.btn { padding:8px 16px; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:600; transition:all .15s; }
+.btn-primary { background:#2563EB; color:#fff; }
+.btn-primary:hover { background:#1D4ED8; }
+.btn-outline { background:#fff; color:#374151; border:1px solid #D1D5DB; }
+.btn-outline:hover { background:#F9FAFB; }
+.btn-danger { background:#EF4444; color:#fff; }
+.btn-danger:hover { background:#DC2626; }
+.btn-success { background:#22C55E; color:#fff; }
+.btn-success:hover { background:#16A34A; }
+.group-select { display:flex; align-items:center; gap:8px; font-size:13px; }
+.group-select select { padding:6px 10px; border:1px solid #D1D5DB; border-radius:6px; font-size:13px; }
+
+/* 排行榜区 */
+.podium { display:flex; gap:12px; margin-bottom:16px; justify-content:center; flex-wrap:wrap; }
+.podium-card { background:#fff; border-radius:10px; padding:16px 24px; text-align:center; min-width:140px; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+.podium-card.gold { border-top:3px solid #F59E0B; }
+.podium-card.silver { border-top:3px solid #94A3B8; }
+.podium-card.bronze { border-top:3px solid #D97706; }
+.podium-card .medal { font-size:28px; }
+.podium-card .name { font-weight:700; font-size:16px; margin:4px 0; }
+.podium-card .score { font-size:28px; font-weight:800; color:#2563EB; }
+
+/* 计分表 */
+.table-wrap { overflow-x:auto; background:#fff; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+table { width:100%; border-collapse:collapse; font-size:12px; min-width:1200px; }
+th, td { padding:8px 6px; text-align:center; border:1px solid #E5E7EB; }
+th { background:#F8FAFC; font-weight:700; color:#374151; position:sticky; top:0; z-index:1; }
+th.col-group { background:#EFF6FF; color:#2563EB; }
+th.col-exercise { background:#F0FDF4; color:#16A34A; }
+th.col-summary { background:#FFF7ED; color:#EA580C; }
+th.col-attend { background:#FDF2F8; color:#DB2777; }
+th.col-perform { background:#F5F3FF; color:#7C3AED; }
+th.col-final { background:#FEF2F2; color:#DC2626; }
+tr:hover td { background:#F9FAFB; }
+.total-row td { font-weight:800; background:#F8FAFC !important; border-top:2px solid #2563EB; }
+.rank-1 td { background:#FFFBEB !important; }
+.rank-2 td { background:#F8FAFC !important; }
+.rank-3 td { background:#FFF7ED !important; }
+input.score-input { width:52px; padding:4px; border:1px solid #D1D5DB; border-radius:4px; text-align:center; font-size:12px; font-weight:600; }
+input.score-input:focus { outline:2px solid #2563EB; border-color:#2563EB; }
+input.score-input.total { font-weight:800; background:#EFF6FF; border-color:#93C5FD; }
+.group-name { font-weight:700; min-width:80px; }
+
+/* 提示信息 */
+.toast { position:fixed; top:16px; right:16px; background:#22C55E; color:#fff; padding:10px 20px; border-radius:8px; font-size:13px; z-index:999; opacity:0; transform:translateY(-10px); transition:all .3s; }
+.toast.show { opacity:1; transform:translateY(0); }
+.footer { margin-top:12px; font-size:11px; color:#9CA3AF; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🏆 AI重构DevOps · 竞赛记分牌</h1>
+  <div class="controls">
+    <div class="group-select">
+      <span>小组数：</span>
+      <select id="groupCount" onchange="changeGroupCount()">
+        <option value="4">4 组</option>
+        <option value="5">5 组</option>
+        <option value="6" selected>6 组</option>
+        <option value="7">7 组</option>
+        <option value="8">8 组</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" onclick="saveData()">💾 保存</button>
+    <button class="btn btn-outline" onclick="loadData()">📂 加载</button>
+    <button class="btn btn-danger" onclick="resetScores()">🔄 重置</button>
+  </div>
+</div>
+
+<div class="podium" id="podium"></div>
+<div class="table-wrap"><table id="scoreTable"></table></div>
+<div class="footer">数据自动保存到浏览器 localStorage · 双击分数格快速编辑 · 排名实时刷新</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const DEFAULT_GROUPS = 6;
+const EXERCISE_COUNT = 10;
+const SUMMARY_COUNT = 3;
+const ATTEND_COUNT = 8;
+const PERFORM_MAX = 12;
+
+let groupNames = [];
+for (let i = 1; i <= 8; i++) groupNames.push('第' + i + '组');
+
+function getDefaultScores(groups) {
+  let s = {};
+  for (let g = 0; g < groups; g++) {
+    s[g] = {
+      opening: 3,           // 开场展示分 保底3
+      exercises: new Array(EXERCISE_COUNT).fill(4),  // 每项保底4
+      summaries: new Array(SUMMARY_COUNT).fill(1),   // 每次保底1
+      attendance: new Array(ATTEND_COUNT).fill(3),   // 每次满分3
+      performance: 0,       // 课堂表现 无保底
+      final: 8              // 综合展示 保底8
+    };
+  }
+  return s;
+}
+
+let scores = getDefaultScores(DEFAULT_GROUPS);
+let groupCount = DEFAULT_GROUPS;
+
+// --- 总分计算 ---
+function calcTotal(g) {
+  let t = scores[g].opening;
+  scores[g].exercises.forEach(v => t += v);
+  scores[g].summaries.forEach(v => t += v);
+  scores[g].attendance.forEach(v => t += v);
+  t += scores[g].performance;
+  t += scores[g].final;
+  return t;
+}
+
+// --- 排名 ---
+function getRanking() {
+  let list = [];
+  for (let g = 0; g < groupCount; g++) {
+    list.push({ group: g, name: groupNames[g], total: calcTotal(g) });
+  }
+  list.sort((a, b) => b.total - a.total);
+  return list;
+}
+
+// --- 渲染排行榜 ---
+function renderPodium() {
+  let ranking = getRanking();
+  let html = '';
+  let medals = ['🥇', '🥈', '🥉'];
+  let cls = ['gold', 'silver', 'bronze'];
+  for (let i = 0; i < Math.min(3, ranking.length); i++) {
+    html += `<div class="podium-card ${cls[i]}">
+      <div class="medal">${medals[i]}</div>
+      <div class="name">${ranking[i].name}</div>
+      <div class="score">${ranking[i].total}</div>
+    </div>`;
+  }
+  document.getElementById('podium').innerHTML = html;
+}
+
+// --- 渲染表格 ---
+function renderTable() {
+  let ranking = getRanking();
+  let rankMap = {};
+  ranking.forEach((r, i) => rankMap[r.group] = i + 1);
+
+  let html = '<thead><tr>';
+  html += '<th rowspan="2">排名</th><th rowspan="2">小组</th>';
+  html += '<th class="col-group" rowspan="2">开场<br>展示<br>(5)</th>';
+  for (let i = 1; i <= EXERCISE_COUNT; i++) {
+    html += `<th class="col-exercise" rowspan="2">演练${i}<br>(6)</th>`;
+  }
+  for (let i = 1; i <= SUMMARY_COUNT; i++) {
+    html += `<th class="col-summary" rowspan="2">总结${i}<br>(3)</th>`;
+  }
+  for (let i = 1; i <= ATTEND_COUNT; i++) {
+    html += `<th class="col-attend" rowspan="2">出勤${i}<br>(3)</th>`;
+  }
+  html += '<th class="col-perform" rowspan="2">课堂<br>表现<br>(12)</th>';
+  html += '<th class="col-final" rowspan="2">综合<br>展示<br>(16)</th>';
+  html += '<th rowspan="2" style="background:#2563EB;color:#fff;">总分</th>';
+  html += '</tr></thead><tbody>';
+
+  for (let g = 0; g < groupCount; g++) {
+    let r = rankMap[g];
+    let rowClass = r === 1 ? 'rank-1' : r === 2 ? 'rank-2' : r === 3 ? 'rank-3' : '';
+    html += `<tr class="${rowClass}">`;
+    html += `<td>${r ? '#' + r : '-'}</td>`;
+    html += `<td class="group-name">${groupNames[g]}</td>`;
+    html += `<td><input class="score-input" value="${scores[g].opening}" data-g="${g}" data-field="opening" onchange="updateScore(this)"></td>`;
+    for (let i = 0; i < EXERCISE_COUNT; i++) {
+      html += `<td><input class="score-input" value="${scores[g].exercises[i]}" data-g="${g}" data-field="exercises" data-idx="${i}" onchange="updateScore(this)"></td>`;
+    }
+    for (let i = 0; i < SUMMARY_COUNT; i++) {
+      html += `<td><input class="score-input" value="${scores[g].summaries[i]}" data-g="${g}" data-field="summaries" data-idx="${i}" onchange="updateScore(this)"></td>`;
+    }
+    for (let i = 0; i < ATTEND_COUNT; i++) {
+      html += `<td><input class="score-input" value="${scores[g].attendance[i]}" data-g="${g}" data-field="attendance" data-idx="${i}" onchange="updateScore(this)"></td>`;
+    }
+    html += `<td><input class="score-input" value="${scores[g].performance}" data-g="${g}" data-field="performance" onchange="updateScore(this)"></td>`;
+    html += `<td><input class="score-input" value="${scores[g].final}" data-g="${g}" data-field="final" onchange="updateScore(this)"></td>`;
+    html += `<td><input class="score-input total" value="${calcTotal(g)}" readonly></td>`;
+    html += '</tr>';
+  }
+  html += '</tbody>';
+  document.getElementById('scoreTable').innerHTML = html;
+  renderPodium();
+}
+
+// --- 更新分数 ---
+function updateScore(input) {
+  let g = parseInt(input.dataset.g);
+  let field = input.dataset.field;
+  let val = parseFloat(input.value);
+  if (isNaN(val)) val = 0;
+  if (field === 'opening') scores[g].opening = val;
+  else if (field === 'performance') scores[g].performance = val;
+  else if (field === 'final') scores[g].final = val;
+  else {
+    let idx = parseInt(input.dataset.idx);
+    scores[g][field][idx] = val;
+  }
+  // 刷新总分列
+  let row = input.closest('tr');
+  let totalInput = row.querySelector('input.total');
+  if (totalInput) totalInput.value = calcTotal(g);
+  renderPodium();
+  autoSave();
+}
+
+// --- 小组数量切换 ---
+function changeGroupCount() {
+  groupCount = parseInt(document.getElementById('groupCount').value);
+  scores = getDefaultScores(groupCount);
+  renderTable();
+  showToast('已切换为 ' + groupCount + ' 组，分数已初始化');
+}
+
+// --- 存储 ---
+function saveData() {
+  let data = { groupCount, scores };
+  localStorage.setItem('devops_scoreboard', JSON.stringify(data));
+  showToast('✅ 已保存');
+}
+function loadData() {
+  let raw = localStorage.getItem('devops_scoreboard');
+  if (!raw) { showToast('⚠️ 无存档数据'); return; }
+  let data = JSON.parse(raw);
+  groupCount = data.groupCount;
+  scores = data.scores;
+  document.getElementById('groupCount').value = groupCount;
+  renderTable();
+  showToast('📂 已加载');
+}
+function autoSave() {
+  let data = { groupCount, scores };
+  localStorage.setItem('devops_scoreboard', JSON.stringify(data));
+}
+function resetScores() {
+  if (!confirm('确定重置所有分数为保底值吗？此操作不可恢复。')) return;
+  scores = getDefaultScores(groupCount);
+  renderTable();
+  showToast('🔄 已重置为保底分');
+}
+
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// --- 初始 ---
+(function init() {
+  let raw = localStorage.getItem('devops_scoreboard');
+  if (raw) {
+    let data = JSON.parse(raw);
+    groupCount = data.groupCount;
+    scores = data.scores;
+    document.getElementById('groupCount').value = groupCount;
+  }
+  renderTable();
+})();
+</script>
+</body>
+</html>
