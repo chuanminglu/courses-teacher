@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(echo *)"
+      "Bash(echo *)",
+      "Read(//mnt/d/Programs/tasksplitting/docs/任务拆解/**)"
     ]
   }
 }
