@@ -2,7 +2,12 @@
   "permissions": {
     "allow": [
       "Bash(echo *)",
-      "Read(//mnt/d/Programs/tasksplitting/docs/任务拆解/**)"
+      "Read(//mnt/d/Programs/tasksplitting/docs/任务拆解/**)",
+      "Read(//mnt/d/Programs/tasksplitting/**)",
+      "Read(//mnt/d/Programs/**)",
+      "Bash(python3 -)",
+      "Bash(awk ' *)",
+      "Bash(grep -c 'visitor-booking-enabled` 特性开关（Release Toggle' /mnt/d/Programs/courses-teacher/改进方案/任务拆解/对比评估/runs/A-deepseek.md)"
     ]
   }
 }
